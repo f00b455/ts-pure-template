@@ -50,7 +50,9 @@ const parseMultipleRssItems = (rssText: string, limit: number = 5): RssHeadline[
   const itemMatches = rssText.matchAll(/<item[^>]*>([\s\S]*?)<\/item>/g);
 
   for (const match of itemMatches) {
-    if (headlines.length >= limit) break;
+    if (headlines.length >= limit) {
+      break;
+    }
 
     const itemText = match[1];
     if (itemText) {
