@@ -3,6 +3,7 @@ import cors from '@fastify/cors';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import { greetRoute } from './routes/greet.js';
+import { rssRoute } from './routes/rss.js';
 
 const server = Fastify({ logger: true });
 
@@ -30,10 +31,11 @@ await server.register(swaggerUi, {
 });
 
 await server.register(greetRoute, { prefix: '/api' });
+await server.register(rssRoute, { prefix: '/api' });
 
 const start = async (): Promise<void> => {
   try {
-    const port = Number(process.env.PORT) || 3001;
+    const port = Number(process.env.PORT) || 3002;
     await server.listen({ port, host: '0.0.0.0' });
     console.log(`Server running at http://localhost:${port}`);
   } catch (err) {
