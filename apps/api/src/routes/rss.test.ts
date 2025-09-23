@@ -1,18 +1,23 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import Fastify from 'fastify';
-import { rssRoute } from './rss.js';
+import { rssRoute, resetCache } from './rss.js';
+
+// Mock fetch globally
+global.fetch = vi.fn();
 
 describe('RSS Route', () => {
   let server: ReturnType<typeof Fastify>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     server = Fastify();
-    server.register(rssRoute);
+    await server.register(rssRoute);
     vi.clearAllMocks();
+    resetCache(); // Reset cache between tests
   });
 
   afterEach(async () => {
     await server.close();
+    vi.resetAllMocks();
   });
 
   describe('GET /rss/spiegel/latest', () => {
@@ -28,10 +33,10 @@ describe('RSS Route', () => {
           </channel>
         </rss>`;
 
-      global.fetch = vi.fn().mockResolvedValue({
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
         ok: true,
         text: vi.fn().mockResolvedValue(mockRssResponse),
-      });
+      } as Response);
 
       const response = await server.inject({
         method: 'GET',
@@ -49,7 +54,7 @@ describe('RSS Route', () => {
     });
 
     it('should return 503 error when RSS fetch fails', async () => {
-      global.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
+      (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Network error'));
 
       const response = await server.inject({
         method: 'GET',
@@ -62,10 +67,10 @@ describe('RSS Route', () => {
     });
 
     it('should return 503 when RSS response is not ok', async () => {
-      global.fetch = vi.fn().mockResolvedValue({
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
         ok: false,
         status: 404,
-      });
+      } as Response);
 
       const response = await server.inject({
         method: 'GET',
@@ -84,10 +89,10 @@ describe('RSS Route', () => {
           </channel>
         </rss>`;
 
-      global.fetch = vi.fn().mockResolvedValue({
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
         ok: true,
         text: vi.fn().mockResolvedValue(mockRssResponse),
-      });
+      } as Response);
 
       const response = await server.inject({
         method: 'GET',
@@ -111,10 +116,10 @@ describe('RSS Route', () => {
           </channel>
         </rss>`;
 
-      global.fetch = vi.fn().mockResolvedValue({
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
         ok: true,
         text: vi.fn().mockResolvedValue(mockRssResponse),
-      });
+      } as Response);
 
       const response = await server.inject({
         method: 'GET',
@@ -139,10 +144,10 @@ describe('RSS Route', () => {
           </channel>
         </rss>`;
 
-      global.fetch = vi.fn().mockResolvedValue({
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
         ok: true,
         text: vi.fn().mockResolvedValue(mockRssResponse),
-      });
+      } as Response);
 
       // First request
       const response1 = await server.inject({
@@ -166,11 +171,10 @@ describe('RSS Route', () => {
     });
 
     it('should handle timeout correctly', async () => {
-      const controller = new AbortController();
       const timeoutError = new Error('Request timeout');
       timeoutError.name = 'AbortError';
 
-      global.fetch = vi.fn().mockRejectedValue(timeoutError);
+      (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValue(timeoutError);
 
       const response = await server.inject({
         method: 'GET',

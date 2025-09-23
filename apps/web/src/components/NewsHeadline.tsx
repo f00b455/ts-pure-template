@@ -17,19 +17,31 @@ const formatTime = (isoDate: string): string => {
   const now = new Date();
   const diffMinutes = Math.floor((now.getTime() - date.getTime()) / 60000);
 
-  if (diffMinutes < 1) return 'gerade eben';
-  if (diffMinutes === 1) return 'vor 1 Minute';
-  if (diffMinutes < 60) return `vor ${diffMinutes} Minuten`;
+  if (diffMinutes < 1) {
+    return 'gerade eben';
+  }
+  if (diffMinutes === 1) {
+    return 'vor 1 Minute';
+  }
+  if (diffMinutes < 60) {
+    return `vor ${diffMinutes} Minuten`;
+  }
 
   const diffHours = Math.floor(diffMinutes / 60);
-  if (diffHours === 1) return 'vor 1 Stunde';
-  if (diffHours < 24) return `vor ${diffHours} Stunden`;
+  if (diffHours === 1) {
+    return 'vor 1 Stunde';
+  }
+  if (diffHours < 24) {
+    return `vor ${diffHours} Stunden`;
+  }
 
   return date.toLocaleDateString('de-DE');
 };
 
 const truncateText = (text: string, maxLength: number): string => {
-  if (text.length <= maxLength) return text;
+  if (text.length <= maxLength) {
+    return text;
+  }
   return text.substring(0, maxLength - 3) + '...';
 };
 
@@ -56,6 +68,7 @@ export function NewsHeadline(): JSX.Element {
         headline: data,
       });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error fetching headline:', error);
       setState({
         loading: false,

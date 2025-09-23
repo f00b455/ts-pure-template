@@ -7,6 +7,11 @@ const REQUEST_TIMEOUT = 2000; // 2 seconds
 
 let cache: { data: RssHeadline | null; timestamp: number } = { data: null, timestamp: 0 };
 
+// Export function to reset cache for testing
+export const resetCache = (): void => {
+  cache = { data: null, timestamp: 0 };
+};
+
 const parseRssItem = (itemText: string): RssHeadline | null => {
   const titleMatch = itemText.match(/<title>([^<]+)<\/title>/);
   const linkMatch = itemText.match(/<link>([^<]+)<\/link>/);

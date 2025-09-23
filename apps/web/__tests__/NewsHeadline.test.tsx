@@ -3,17 +3,22 @@ import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { NewsHeadline } from '@/components/NewsHeadline';
 
+// Mock fetch globally
+global.fetch = vi.fn();
+
 describe('NewsHeadline Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.useRealTimers();
   });
 
   it('should display loading state initially', () => {
-    global.fetch = vi.fn().mockImplementation(() =>
+    (global.fetch as ReturnType<typeof vi.fn>).mockImplementation(() =>
       new Promise(() => {}) // Never resolves to keep loading state
     );
 
@@ -33,10 +38,10 @@ describe('NewsHeadline Component', () => {
       source: 'SPIEGEL',
     };
 
-    global.fetch = vi.fn().mockResolvedValue({
+    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       json: vi.fn().mockResolvedValue(mockHeadline),
-    });
+    } as Response);
 
     render(<NewsHeadline />);
 
@@ -51,7 +56,7 @@ describe('NewsHeadline Component', () => {
   });
 
   it('should display error message when API fails', async () => {
-    global.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
+    (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Network error'));
 
     render(<NewsHeadline />);
 
@@ -64,10 +69,10 @@ describe('NewsHeadline Component', () => {
   });
 
   it('should display error message when API returns non-ok response', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
+    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: false,
       status: 503,
-    });
+    } as Response);
 
     render(<NewsHeadline />);
 
@@ -130,10 +135,10 @@ describe('NewsHeadline Component', () => {
       source: 'SPIEGEL',
     };
 
-    global.fetch = vi.fn().mockResolvedValue({
+    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       json: vi.fn().mockResolvedValue(mockHeadline),
-    });
+    } as Response);
 
     render(<NewsHeadline />);
 
@@ -154,10 +159,10 @@ describe('NewsHeadline Component', () => {
       source: 'SPIEGEL',
     };
 
-    global.fetch = vi.fn().mockResolvedValue({
+    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       json: vi.fn().mockResolvedValue(mockHeadline),
-    });
+    } as Response);
 
     render(<NewsHeadline />);
 
@@ -177,7 +182,7 @@ describe('NewsHeadline Component', () => {
     vi.useFakeTimers();
     const clearIntervalSpy = vi.spyOn(global, 'clearInterval');
 
-    global.fetch = vi.fn().mockResolvedValue({
+    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       json: vi.fn().mockResolvedValue({
         title: 'Test',
@@ -211,10 +216,10 @@ describe('NewsHeadline Component', () => {
       source: 'SPIEGEL',
     };
 
-    global.fetch = vi.fn().mockResolvedValue({
+    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       json: vi.fn().mockResolvedValue(mockHeadline),
-    });
+    } as Response);
 
     render(<NewsHeadline />);
 
