@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { GreetForm } from '@/components/GreetForm';
-import { NewsHeadline } from '@/components/NewsHeadline';
+import { NewsHeadlines } from '@/components/NewsHeadlines';
 
 export const metadata: Metadata = {
   title: 'TypeScript Template',
@@ -17,11 +17,13 @@ export default function RootLayout({
       <body className="min-h-screen bg-gray-50">
         <header className="bg-white shadow-sm border-b">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between space-y-4 lg:space-y-0 lg:space-x-8">
               <h1 className="text-3xl font-bold text-gray-900">
                 TypeScript Monorepo Template
               </h1>
-              <NewsHeadline />
+              <div className="lg:max-w-md xl:max-w-lg">
+                <NewsHeadlines />
+              </div>
             </div>
           </div>
         </header>
