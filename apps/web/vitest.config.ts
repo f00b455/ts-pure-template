@@ -9,6 +9,8 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./vitest.setup.ts'],
     exclude: ['**/e2e/**', '**/node_modules/**'],
+    testTimeout: 1000,
+    watch: false,
   },
   resolve: {
     alias: {

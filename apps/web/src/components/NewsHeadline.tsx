@@ -117,7 +117,7 @@ export function NewsHeadline(): JSX.Element {
   }
 
   const { title, link, publishedAt, source } = state.headline;
-  const displayTitle = window.innerWidth < 640
+  const displayTitle = typeof window !== 'undefined' && window.innerWidth < 640
     ? truncateText(title, 50)
     : title;
 
