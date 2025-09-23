@@ -39,5 +39,5 @@
     "functional/functional-parameters": "off",
     "functional/readonly-type": "off"
   },
-  "ignorePatterns": ["dist/", "node_modules/", "*.js", "__tests__/**", "vitest.config.ts"]
+  "ignorePatterns": ["dist/", "node_modules/", "*.js", "__tests__/**", "vitest.config.ts", "features/**/*"]
 }

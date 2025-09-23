@@ -45,7 +45,7 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - run: pnpm test
+      - run: pnpm test -- --run
 
       - name: Upload coverage reports
         uses: codecov/codecov-action@v3
@@ -91,7 +91,7 @@ jobs:
 
       - run: pnpm test:e2e
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-report
