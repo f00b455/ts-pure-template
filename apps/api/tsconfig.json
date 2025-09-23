@@ -3,10 +3,14 @@
   "compilerOptions": {
     "outDir": "./dist",
     "noEmit": false,
+    "composite": true,
     "paths": {
       "@/*": ["./src/*"]
     }
   },
   "include": ["src/**/*", "__tests__/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist"],
+  "references": [
+    { "path": "../../packages/shared" }
+  ]
 }
