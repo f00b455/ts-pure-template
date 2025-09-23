@@ -4,7 +4,7 @@ export default function Home(): JSX.Element {
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <h2 className="text-2xl font-bold mb-4 text-gray-800">
-        Static Greeting
+        Static Greeting foo
       </h2>
       <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
         <p className="text-blue-800 font-medium text-lg">

@@ -7,27 +7,27 @@ Feature: Foo Data Transformation and Filtering
     Given I have access to the foo data operation functions
 
   Scenario: Transform string array to uppercase
-    Given I have an array ["a", "b", "c"]
+    Given I have an array '["a", "b", "c"]'
     When I transform it with uppercase function
-    Then the result should be ["A", "B", "C"]
+    Then the array result should be '["A", "B", "C"]'
 
   Scenario: Transform with custom function
-    Given I have an array ["hello", "world"]
+    Given I have an array '["hello", "world"]'
     When I transform it with a function that adds "!"
-    Then the result should be ["hello!", "world!"]
+    Then the array result should be '["hello!", "world!"]'
 
   Scenario: Filter numbers for even values
-    Given I have a number array [1, 2, 3, 4, 5]
+    Given I have a number array '[1, 2, 3, 4, 5]'
     When I filter it for even numbers
-    Then the result should be [2, 4]
+    Then the array result should be '[2, 4]'
 
   Scenario: Filter strings containing specific text
-    Given I have a string array ["foo", "bar", "foobar"]
+    Given I have a string array '["foo", "bar", "foobar"]'
     When I filter it for items containing "foo"
-    Then the result should be ["foo", "foobar"]
+    Then the array result should be '["foo", "foobar"]'
 
   Scenario: Function purity - original arrays unchanged
-    Given I have an array ["original", "data"]
+    Given I have an array '["original", "data"]'
     When I transform and filter the array
     Then the original array should remain unchanged
     And the functions should return new arrays
@@ -36,5 +36,5 @@ Feature: Foo Data Transformation and Filtering
     Given I have an empty array
     When I transform it with any function
     Then the result should be an empty array
-    And when I filter it with any predicate
+    When I filter it with any predicate
     Then the result should be an empty array

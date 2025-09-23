@@ -27,9 +27,7 @@ export default function RootLayout({
             <div>
               <GreetForm />
             </div>
-            <div>
-              {children}
-            </div>
+            <div>{children}</div>
           </div>
         </main>
       </body>

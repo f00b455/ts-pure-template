@@ -12,10 +12,10 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@ts-template/shared": "workspace:*",
     "next": "14.1.4",
     "react": "^18",
-    "react-dom": "^18",
-    "@ts-template/shared": "workspace:*"
+    "react-dom": "^18"
   },
   "devDependencies": {
     "@playwright/test": "^1.42.1",
@@ -29,6 +29,7 @@
     "eslint-config-next": "14.1.4",
     "jsdom": "^24.0.0",
     "typescript": "^5",
+    "vite": "^5.4.20",
     "vitest": "^1.4.0"
   }
 }
