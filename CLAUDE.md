@@ -128,8 +128,9 @@ ts-pure-template/
 
 ### CI/CD:
 - GitHub Actions with separate jobs for linting, testing, building
-- Automated releases with Changesets
+- Automated versioning with Changesets (private packages)
 - Coverage reporting with Codecov
+- Release PRs for version management (no npm publishing)
 
 ## Important Notes:
 - Always use test database for tests
