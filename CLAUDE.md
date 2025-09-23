@@ -41,6 +41,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Test Database**: Always use test database, never production data
 - **Arrange-Act-Assert**: Structure tests clearly with setup, execution, and verification
 - **Descriptive Test Names**: Test names should describe the behavior being tested
+- **BDD for Libraries**: Every library must have feature files describing user stories and business requirements
 
 ### Architecture Guidelines:
 - **Dependency Injection**: Prefer injecting dependencies over tight coupling
@@ -121,10 +122,12 @@ ts-pure-template/
 - Includes comprehensive unit tests
 
 ### Testing Strategy:
-- Unit tests with Vitest (with mocks as per user preference)
-- E2E tests with Playwright
-- BDD tests with Cucumber
-- Always use test database (important requirement)
+- **Unit Tests**: Vitest with mocks for external dependencies
+- **E2E Tests**: Playwright for full application flows
+- **BDD Tests**: Cucumber with Gherkin syntax for business requirements
+- **Library BDD Requirement**: Every library package MUST have feature files
+- **Feature File Coverage**: Each user story/issue requires at least one .feature file
+- **Always use test database** (important requirement)
 
 ### CI/CD:
 - GitHub Actions with separate jobs for linting, testing, building
@@ -132,8 +135,60 @@ ts-pure-template/
 - Coverage reporting with Codecov
 - Release PRs for version management (no npm publishing)
 
+## BDD Requirements for Libraries
+
+### Mandatory Feature Files:
+Every library package (packages/lib-*, packages/shared) MUST include:
+- `.feature` files in the `features/` directory
+- Gherkin scenarios describing user stories and business requirements
+- Step definitions in `features/step_definitions/`
+- Cucumber configuration (`cucumber.js`)
+- `test:cucumber` script in package.json
+
+### Feature File Structure:
+```gherkin
+Feature: [Feature Name]
+  As a [user type]
+  I want to [goal]
+  So that [benefit]
+
+  Background:
+    Given [common setup]
+
+  Scenario: [Scenario description]
+    Given [precondition]
+    When [action]
+    Then [expected result]
+```
+
+### Coverage Requirements:
+- **One feature file per user story/issue minimum**
+- Cover all public API functions
+- Test pure function properties (determinism, immutability)
+- Include error handling scenarios
+- Verify integration points between libraries
+
+### Example Library BDD Structure:
+```
+packages/lib-foo/
+├── features/
+│   ├── foo-processing.feature      # Core processing functionality
+│   ├── foo-greeting.feature        # Integration features
+│   ├── foo-data-operations.feature # Data transformation features
+│   └── step_definitions/
+│       └── foo.steps.ts            # Step implementations
+├── cucumber.js                     # Cucumber configuration
+└── package.json                    # Includes test:cucumber script
+```
+
+### Running BDD Tests:
+- Individual package: `pnpm --filter @ts-template/lib-foo test:cucumber`
+- All packages: `pnpm test:cucumber` (from root)
+- CI pipeline includes Cucumber test execution
+
 ## Important Notes:
 - Always use test database for tests
 - Use mocks in tests as specified in user requirements
 - TypeScript strict mode enabled across all packages
 - Shared tsconfig.base.json for consistent configuration
+- **BDD is mandatory for all library packages**

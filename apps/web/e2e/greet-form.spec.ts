@@ -33,7 +33,7 @@ test('should show loading state during API call', async ({ page }) => {
     await expect(page.getByRole('button', { name: 'Loading...' })).toBeVisible({ timeout: 1000 });
   } catch {
     // Loading state might be too fast to catch, which is fine
-    console.log('Loading state was too fast to detect');
+    // This is expected behavior for fast API responses
   }
 
   // Eventually we should see the result

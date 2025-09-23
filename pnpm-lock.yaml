@@ -128,6 +128,9 @@ importers:
         specifier: workspace:*
         version: link:../shared
     devDependencies:
+      '@cucumber/cucumber':
+        specifier: ^10.9.0
+        version: 10.9.0
       '@types/node':
         specifier: ^20
         version: 20.19.17
@@ -140,6 +143,9 @@ importers:
       eslint:
         specifier: ^8.57.0
         version: 8.57.1
+      tsx:
+        specifier: ^4.7.1
+        version: 4.20.5
       typescript:
         specifier: ^5.4.2
         version: 5.9.2
@@ -149,6 +155,9 @@ importers:
 
   packages/shared:
     devDependencies:
+      '@cucumber/cucumber':
+        specifier: ^10.9.0
+        version: 10.9.0
       '@types/node':
         specifier: ^20
         version: 20.19.17
@@ -161,6 +170,9 @@ importers:
       eslint:
         specifier: ^8.57.0
         version: 8.57.1
+      tsx:
+        specifier: ^4.7.1
+        version: 4.20.5
       typescript:
         specifier: ^5.4.2
         version: 5.9.2
