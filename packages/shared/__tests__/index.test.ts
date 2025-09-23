@@ -7,9 +7,9 @@ describe('shared utilities', () => {
       expect(greet('TypeScript')).toBe('Hello, TypeScript!');
     });
 
-    it('should throw error for empty name', () => {
-      expect(() => greet('')).toThrow('Name cannot be empty');
-      expect(() => greet('   ')).toThrow('Name cannot be empty');
+    it('should return error message for empty name (pure function approach)', () => {
+      expect(greet('')).toBe('Error: Name cannot be empty');
+      expect(greet('   ')).toBe('Error: Name cannot be empty');
     });
   });
 

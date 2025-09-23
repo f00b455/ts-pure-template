@@ -9,8 +9,10 @@ vi.mock('@/lib/api', () => ({
   },
 }));
 
+import { apiClient } from '@/lib/api';
+const mockApiClient = vi.mocked(apiClient);
+
 describe('GreetForm', () => {
-  const mockApiClient = vi.mocked(await import('@/lib/api')).apiClient;
 
   beforeEach(() => {
     vi.clearAllMocks();

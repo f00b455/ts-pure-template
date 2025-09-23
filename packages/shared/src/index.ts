@@ -2,11 +2,12 @@ export const greet = (name: string): string => {
   if (!name.trim()) {
     return 'Error: Name cannot be empty';
   }
-  return `Hello, ${name}! HUHU`;
+  return `Hello, ${name}!`;
 };
 
 export const formatDate = (date: Readonly<Date>): string => {
-  return date.toISOString().split('T')[0];
+  const parts = date.toISOString().split('T');
+  return parts[0] ?? '';
 };
 
 export type User = Readonly<{

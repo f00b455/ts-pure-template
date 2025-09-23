@@ -1,7 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import {
-  FooProcessor,
   createFooProcessor,
+  fooProcess,
+  fooGreet,
   fooTransform,
   fooFilter,
 } from '../src/index.js';
@@ -11,30 +12,33 @@ vi.mock('@ts-template/shared', () => ({
 }));
 
 describe('lib-foo', () => {
-  describe('FooProcessor', () => {
+  describe('fooProcess', () => {
     it('should process input with prefix', () => {
-      const processor = new FooProcessor({ prefix: 'FOO: ' });
-      const result = processor.process('test');
+      const processor = fooProcess({ prefix: 'FOO: ' });
+      const result = processor('test');
       expect(result).toBe('FOO: test');
     });
 
     it('should process input with prefix and suffix', () => {
-      const processor = new FooProcessor({ prefix: 'FOO: ', suffix: ' :BAR' });
-      const result = processor.process('test');
+      const processor = fooProcess({ prefix: 'FOO: ', suffix: ' :BAR' });
+      const result = processor('test');
       expect(result).toBe('FOO: test :BAR');
     });
+  });
 
+  describe('fooGreet', () => {
     it('should greet with foo processing', () => {
-      const processor = new FooProcessor({ prefix: '[FOO] ' });
-      const result = processor.greetWithFoo('World');
+      const greeter = fooGreet({ prefix: '[FOO] ' });
+      const result = greeter('World');
       expect(result).toBe('[FOO] Hello, World!');
     });
   });
 
   describe('createFooProcessor', () => {
-    it('should create FooProcessor instance', () => {
+    it('should create processor object with methods', () => {
       const processor = createFooProcessor({ prefix: 'TEST: ' });
-      expect(processor).toBeInstanceOf(FooProcessor);
+      expect(typeof processor.process).toBe('function');
+      expect(typeof processor.greetWithFoo).toBe('function');
       expect(processor.process('data')).toBe('TEST: data');
     });
   });
