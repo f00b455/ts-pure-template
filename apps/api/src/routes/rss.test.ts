@@ -36,7 +36,7 @@ describe('RSS Route', () => {
       (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
         ok: true,
         text: vi.fn().mockResolvedValue(mockRssResponse),
-      } as Response);
+      } as unknown as Response);
 
       const response = await server.inject({
         method: 'GET',
@@ -70,7 +70,7 @@ describe('RSS Route', () => {
       (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
         ok: false,
         status: 404,
-      } as Response);
+      } as unknown as Response);
 
       const response = await server.inject({
         method: 'GET',
@@ -92,7 +92,7 @@ describe('RSS Route', () => {
       (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
         ok: true,
         text: vi.fn().mockResolvedValue(mockRssResponse),
-      } as Response);
+      } as unknown as Response);
 
       const response = await server.inject({
         method: 'GET',
@@ -119,7 +119,7 @@ describe('RSS Route', () => {
       (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
         ok: true,
         text: vi.fn().mockResolvedValue(mockRssResponse),
-      } as Response);
+      } as unknown as Response);
 
       const response = await server.inject({
         method: 'GET',
@@ -147,7 +147,7 @@ describe('RSS Route', () => {
       (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
         ok: true,
         text: vi.fn().mockResolvedValue(mockRssResponse),
-      } as Response);
+      } as unknown as Response);
 
       // First request
       const response1 = await server.inject({

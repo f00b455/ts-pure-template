@@ -41,7 +41,7 @@ describe('NewsHeadline Component', () => {
     (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       json: vi.fn().mockResolvedValue(mockHeadline),
-    } as Response);
+    } as unknown as Response);
 
     render(<NewsHeadline />);
 
@@ -72,7 +72,7 @@ describe('NewsHeadline Component', () => {
     (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: false,
       status: 503,
-    } as Response);
+    } as unknown as Response);
 
     render(<NewsHeadline />);
 
@@ -138,7 +138,7 @@ describe('NewsHeadline Component', () => {
     (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       json: vi.fn().mockResolvedValue(mockHeadline),
-    } as Response);
+    } as unknown as Response);
 
     render(<NewsHeadline />);
 
@@ -162,7 +162,7 @@ describe('NewsHeadline Component', () => {
     (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       json: vi.fn().mockResolvedValue(mockHeadline),
-    } as Response);
+    } as unknown as Response);
 
     render(<NewsHeadline />);
 
@@ -219,7 +219,7 @@ describe('NewsHeadline Component', () => {
     (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       json: vi.fn().mockResolvedValue(mockHeadline),
-    } as Response);
+    } as unknown as Response);
 
     render(<NewsHeadline />);
 
