@@ -58,15 +58,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Structure
 
-This is a TypeScript monorepo using pnpm workspaces and Turborepo:
+This is a TypeScript monorepo using pnpm workspaces and Turborepo for developing core functionalities, MCP servers, CLI apps, and libraries:
 
 ```
 ts-pure-template/
 ├── apps/
 │   ├── web/          # Next.js frontend application
-│   └── api/          # Fastify backend API
+│   ├── api/          # Fastify backend API
+│   └── cli/          # CLI applications
 ├── packages/
-│   └── shared/       # Shared TypeScript utilities and types
+│   ├── shared/       # Shared TypeScript utilities and types
+│   ├── core/         # Core business logic and functionalities
+│   ├── mcp-*/        # MCP (Model Context Protocol) servers
+│   └── lib-*/        # Reusable libraries
+├── tools/            # Build tools and development utilities
 ├── .changeset/       # Changesets configuration for versioning
 ├── .claude/          # Claude Code-Playbooks
 └── .github/          # CI/CD workflows
