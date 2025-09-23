@@ -11,7 +11,12 @@ export default defineConfig({
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
   },
-  projects: [
+  projects: process.env.CI ? [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+  ] : [
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
@@ -26,7 +31,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'pnpm next dev',
+    command: process.env.CI ? 'pnpm next start' : 'pnpm next dev',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
   },
