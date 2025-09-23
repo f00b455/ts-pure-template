@@ -13,8 +13,8 @@ export const resetCache = (): void => {
 };
 
 const parseRssItem = (itemText: string): RssHeadline | null => {
-  const titleMatch = itemText.match(/<title>([^<]+)<\/title>/);
-  const linkMatch = itemText.match(/<link>([^<]+)<\/link>/);
+  const titleMatch = itemText.match(/<title>(.*?)<\/title>/s);
+  const linkMatch = itemText.match(/<link>(.*?)<\/link>/s);
   const pubDateMatch = itemText.match(/<pubDate>([^<]+)<\/pubDate>/);
 
   if (!titleMatch || !linkMatch) {
