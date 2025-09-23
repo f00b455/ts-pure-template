@@ -68,6 +68,8 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - run: pnpm build
+
       - run: pnpm test:cucumber
 
   e2e:
