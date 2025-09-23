@@ -16,3 +16,10 @@ export type User = Readonly<{
   readonly email: string;
   readonly createdAt: Date;
 }>;
+
+export type RssHeadline = Readonly<{
+  readonly title: string;
+  readonly link: string;
+  readonly publishedAt: string;
+  readonly source: string;
+}>;
