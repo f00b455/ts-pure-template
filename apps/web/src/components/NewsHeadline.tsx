@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import type { RssHeadline } from '@ts-template/shared';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
 const REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes
 
 type HeadlineState = {
