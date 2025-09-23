@@ -21,6 +21,7 @@
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
     "@types/node": "^20.11.30",
+    "eslint-plugin-functional": "^6.6.3",
     "prettier": "^3.2.5",
     "turbo": "^1.12.5",
     "typescript": "^5.4.2"

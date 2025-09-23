@@ -1,11 +1,11 @@
-import { Given, When, Then } from '@cucumber/cucumber';
+import { When, Then } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
 
 interface TestWorld {
   response?: { message: string };
 }
 
-When('I request a greeting without a name', async function (this: TestWorld) {
+When('I request a greeting without a name', async function () {
   // Mock API call - in real scenario, use actual HTTP client
   this.response = { message: 'Hello, World!' };
 });

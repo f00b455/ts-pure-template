@@ -33,7 +33,7 @@ export const greetRoute: FastifyPluginAsync = async function (fastify) {
         },
       },
     },
-    async function (request, reply) {
+    async function (request) {
       const { name = 'World' } = request.query;
       return { message: greet(name) };
     }

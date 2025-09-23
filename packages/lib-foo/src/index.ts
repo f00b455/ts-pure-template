@@ -1,32 +1,37 @@
 import { greet } from '@ts-template/shared';
 
 export interface FooConfig {
-  prefix: string;
-  suffix?: string;
+  readonly prefix: string;
+  readonly suffix?: string;
 }
 
-export class FooProcessor {
-  constructor(private config: FooConfig) {}
-
-  process(input: string): string {
-    const processed = `${this.config.prefix}${input}${this.config.suffix || ''}`;
-    return processed;
-  }
-
-  greetWithFoo(name: string): string {
-    const greeting = greet(name);
-    return this.process(greeting);
-  }
-}
-
-export const createFooProcessor = (config: FooConfig): FooProcessor => {
-  return new FooProcessor(config);
+// Pure functional approach instead of class
+export const fooProcess = (config: Readonly<FooConfig>) => (input: string): string => {
+  return `${config.prefix}${input}${config.suffix || ''}`;
 };
 
-export const fooTransform = (data: string[], transformer: (item: string) => string): string[] => {
+export const fooGreet = (config: Readonly<FooConfig>) => (name: string): string => {
+  const greeting = greet(name);
+  return fooProcess(config)(greeting);
+};
+
+export const createFooProcessor = (config: Readonly<FooConfig>) => {
+  return {
+    process: fooProcess(config),
+    greetWithFoo: fooGreet(config),
+  };
+};
+
+export const fooTransform = (
+  data: readonly string[],
+  transformer: (value: string) => string
+): readonly string[] => {
   return data.map(transformer);
 };
 
-export const fooFilter = <T>(items: T[], predicate: (item: T) => boolean): T[] => {
+export const fooFilter = <T>(
+  items: readonly T[],
+  predicate: (value: T) => boolean
+): readonly T[] => {
   return items.filter(predicate);
 };
