@@ -1,0 +1,32 @@
+{
+  "name": "@ts-template/wiki-reports",
+  "version": "0.0.0",
+  "description": "CI/CD test reports publishing to GitHub Wiki",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest",
+    "test:cucumber": "cucumber-js",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint . --max-warnings 0",
+    "clean": "rm -rf dist node_modules .turbo"
+  },
+  "dependencies": {
+    "@ts-template/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@cucumber/cucumber": "^10.3.1",
+    "@types/node": "^20.11.30",
+    "tsup": "^8.0.2",
+    "vitest": "^1.4.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
