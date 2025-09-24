@@ -15,7 +15,7 @@ const delay = (ms: number): Promise<void> =>
 const runSpinner = async (): Promise<void> => {
   const spinner = createSpinner('Preparing something awesome...').start();
   await delay(5000);
-  spinner.success({ text: pc.green('Ready!') });
+  spinner.success({ text: 'Ready!' });
 };
 
 const runProgressBar = async (): Promise<void> => {
@@ -87,4 +87,11 @@ cli
 cli.help();
 cli.version('1.0.0');
 
-cli.parse();
+// Handle parse errors to show help
+try {
+  cli.parse();
+} catch (error) {
+  // Show help message when there's an error
+  cli.outputHelp();
+  process.exit(1);
+}
