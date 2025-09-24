@@ -1,0 +1,154 @@
+# GitHub Actions Workflow Template for Wiki Reports
+# Copy this file to .github/workflows/wiki-reports.yml to enable automatic test report publishing
+
+name: Publish Test Reports to Wiki
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+  push:
+    branches:
+      - main
+      - 'release/*'
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  publish-reports:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Wiki Reports Package
+        run: pnpm --filter @ts-template/wiki-reports build
+
+      - name: Run Tests and Generate Reports
+        run: |
+          # Generate test reports
+          pnpm test:run --reporter=json > test-results.json || true
+          pnpm test:cucumber --format json > cucumber-results.json || true
+
+      - name: Clone Wiki
+        run: |
+          git config --global user.email "bot@users.noreply.github.com"
+          git config --global user.name "ci-bot"
+          git clone "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.wiki.git" wiki
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish Reports to Wiki
+        run: |
+          BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
+          RUN_ID="${GITHUB_RUN_ID}"
+          COMMIT_SHA="${GITHUB_SHA}"
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+          # Create TypeScript script to publish reports
+          cat << 'EOF' > publish.ts
+          import { WikiReportsPublisher, ReportIndexGenerator, ReportRetention } from '@ts-template/wiki-reports';
+          import { JestConverter, VitestConverter, CucumberConverter } from '@ts-template/wiki-reports';
+          import fs from 'fs';
+
+          async function publish() {
+            const wikiPath = './wiki';
+            const publisher = new WikiReportsPublisher(wikiPath);
+            const indexGenerator = new ReportIndexGenerator(wikiPath);
+            const retention = new ReportRetention(wikiPath);
+
+            const converters = [];
+            const reports = [];
+
+            // Convert test reports if they exist
+            try {
+              if (fs.existsSync('test-results.json')) {
+                const vitestData = fs.readFileSync('test-results.json', 'utf-8');
+                const vitestConverter = new VitestConverter();
+                const vitestReport = await vitestConverter.convert(JSON.parse(vitestData));
+                reports.push(vitestReport);
+              }
+            } catch (e) {
+              console.error('Error converting Vitest report:', e);
+            }
+
+            try {
+              if (fs.existsSync('cucumber-results.json')) {
+                const cucumberData = fs.readFileSync('cucumber-results.json', 'utf-8');
+                const cucumberConverter = new CucumberConverter();
+                const cucumberReport = await cucumberConverter.convert(JSON.parse(cucumberData));
+                reports.push(cucumberReport);
+              }
+            } catch (e) {
+              console.error('Error converting Cucumber report:', e);
+            }
+
+            // Publish reports
+            const config = {
+              wikiPath,
+              branch: process.env.BRANCH || 'main',
+              runId: process.env.RUN_ID || 'unknown',
+              commitSha: process.env.COMMIT_SHA || 'unknown',
+              timestamp: new Date(process.env.TIMESTAMP || Date.now()),
+              retentionCount: 20
+            };
+
+            const result = await publisher.publish(config, reports);
+            console.log('Publish result:', result);
+
+            // Clean old reports
+            if (await retention.shouldClean(config.branch)) {
+              const deleted = await retention.cleanOldReports(config.branch);
+              console.log(`Deleted ${deleted} old reports from ${config.branch}`);
+            }
+
+            // Generate index
+            await indexGenerator.generateIndex();
+            console.log('Index generated');
+          }
+
+          publish().catch(console.error);
+          EOF
+
+          # Run the publish script
+          BRANCH="$BRANCH" RUN_ID="$RUN_ID" COMMIT_SHA="$COMMIT_SHA" TIMESTAMP="$TIMESTAMP" \
+            npx tsx publish.ts
+
+      - name: Push to Wiki
+        run: |
+          cd wiki
+          git add .
+          git diff --staged --quiet || git commit -m "Publish test reports: ${GITHUB_REF_NAME} run ${GITHUB_RUN_ID}"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Reports as Artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-reports-${{ github.run_id }}
+          path: |
+            test-results.json
+            cucumber-results.json
+            wiki/reports/
+          retention-days: 30

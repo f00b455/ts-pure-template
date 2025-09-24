@@ -1,0 +1,7 @@
+{
+  "rules": {
+    "functional/no-let": "off",
+    "functional/immutable-data": "off",
+    "@typescript-eslint/no-unused-vars": "off"
+  }
+}
