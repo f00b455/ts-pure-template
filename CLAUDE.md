@@ -138,15 +138,19 @@ ts-pure-template/
 ## BDD Requirements for Libraries
 
 ### Mandatory Feature Files:
-Every library package (packages/lib-*, packages/shared) MUST include:
+Every library package (packages/lib-*, packages/shared) AND application package (apps/*) MUST include:
 - `.feature` files in the `features/` directory
 - Gherkin scenarios describing user stories and business requirements
 - Step definitions in `features/step_definitions/`
 - Cucumber configuration (`cucumber.js`)
 - `test:cucumber` script in package.json
+- **GitHub Issue references** (see below)
 
-### Feature File Structure:
+### Feature File Structure with Issue References:
 ```gherkin
+# Issue: #<ISSUE_NUMBER>
+# URL: https://github.com/<OWNER>/<REPO>/issues/<ISSUE_NUMBER>
+@pkg(<pkg>) @issue-<ISSUE_NUMBER>
 Feature: [Feature Name]
   As a [user type]
   I want to [goal]
@@ -155,11 +159,47 @@ Feature: [Feature Name]
   Background:
     Given [common setup]
 
+  @happy-path
   Scenario: [Scenario description]
     Given [precondition]
     When [action]
     Then [expected result]
 ```
+
+### Issue Reference Requirements:
+**EVERY feature file in the monorepo MUST contain:**
+
+1. **Header Comments** (first 2 lines):
+   - `# Issue: #<number>` - GitHub issue number reference
+   - `# URL: https://github.com/<owner>/<repo>/issues/<number>` - Full GitHub issue URL
+
+2. **Tags** (on the Feature line):
+   - `@issue-<number>` - Issue tag for filtering and tracking
+   - `@pkg(<package-name>)` - Package identifier tag (e.g., @pkg(lib-foo), @pkg(api), @pkg(web))
+
+3. **CI Verification**:
+   - The CI pipeline automatically verifies all feature files have proper issue references
+   - Missing references will cause the CI to fail with specific error messages
+   - This ensures full traceability between user stories/issues and BDD tests
+
+4. **Example for Issue #7**:
+   ```gherkin
+   # Issue: #7
+   # URL: https://github.com/f00b455/ts-pure-template/issues/7
+   @pkg(lib-foo) @issue-7
+   Feature: lib-foo – Processing Functions
+   ```
+
+5. **Step Definitions with Dummy Implementations**:
+   - When creating new feature files, step definitions MUST be implemented
+   - Unimplemented steps should throw an exception with a clear message:
+   ```typescript
+   function unimplemented(step: string): never {
+     throw new Error(`UNIMPLEMENTED_STEP: ${step} — please implement.`);
+   }
+
+   Given("<condition>", () => unimplemented("Given <condition>"));
+   ```
 
 ### Coverage Requirements:
 - **One feature file per user story/issue minimum**

@@ -1,3 +1,6 @@
+# Issue: #7
+# URL: https://github.com/f00b455/ts-pure-template/issues/7
+@pkg(shared) @issue-7
 Feature: Shared Greeting Function
   As a developer using the shared utilities
   I want to use a pure greeting function

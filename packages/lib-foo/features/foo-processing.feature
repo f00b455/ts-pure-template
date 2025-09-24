@@ -1,3 +1,6 @@
+# Issue: #7
+# URL: https://github.com/f00b455/ts-pure-template/issues/7
+@pkg(lib-foo) @issue-7
 Feature: Foo Processing Functions
   As a developer using the lib-foo library
   I want to process data with configurable prefix and suffix

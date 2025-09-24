@@ -1,3 +1,6 @@
+# Issue: #7
+# URL: https://github.com/f00b455/ts-pure-template/issues/7
+@pkg(web) @issue-7
 Feature: Header zeigt Top 5 SPIEGEL-Schlagzeilen inkl. Datum
   Damit ich mehrere aktuelle News schnell erfassen kann,
   möchte ich im Header bis zu 5 Headlines mit Datum sehen.
