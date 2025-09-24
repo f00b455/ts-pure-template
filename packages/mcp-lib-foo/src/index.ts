@@ -161,7 +161,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     switch (name) {
       case 'fooProcess': {
         const { input, prefix, suffix } = args as { input: string; prefix: string; suffix?: string };
-        const config: FooConfig = { prefix, suffix };
+        const config: FooConfig = suffix !== undefined ? { prefix, suffix } : { prefix };
         const result = fooProcess(config)(input);
         return {
           content: [
@@ -175,7 +175,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case 'fooGreet': {
         const { name: userName, prefix, suffix } = args as { name: string; prefix: string; suffix?: string };
-        const config: FooConfig = { prefix, suffix };
+        const config: FooConfig = suffix !== undefined ? { prefix, suffix } : { prefix };
         const result = fooGreet(config)(userName);
         return {
           content: [
@@ -194,7 +194,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           action: 'process' | 'greetWithFoo';
           input: string;
         };
-        const config: FooConfig = { prefix, suffix };
+        const config: FooConfig = suffix !== undefined ? { prefix, suffix } : { prefix };
         const processor = createFooProcessor(config);
 
         let result: string;
@@ -276,7 +276,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             break;
           case 'string':
             if (customPredicate && customPredicate.startsWith('minLength:')) {
-              const minLength = parseInt(customPredicate.split(':')[1], 10);
+              const parts = customPredicate.split(':');
+              const minLength = parts[1] ? parseInt(parts[1], 10) : 0;
               predicate = (v: unknown) => typeof v === 'string' && v.length >= minLength;
             } else {
               predicate = (v: unknown) => typeof v === 'string';

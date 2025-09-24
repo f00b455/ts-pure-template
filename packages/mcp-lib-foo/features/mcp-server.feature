@@ -1,6 +1,6 @@
 # Issue: #19
 # URL: https://github.com/f00b455/ts-pure-template/issues/19
-@pkg(mcp-lib-foo) @issue-19
+@pkg-mcp-lib-foo @issue-19
 Feature: MCP Server Infrastructure
   As a developer
   I want a properly functioning MCP server

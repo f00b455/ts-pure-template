@@ -1,8 +1,7 @@
 import { Given, When, Then, Before, After } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
-import { spawn, ChildProcess } from 'child_process';
+import { ChildProcess } from 'child_process';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
   fooProcess,
   fooGreet,

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 
@@ -21,6 +21,7 @@ describe('MCP Server for lib-foo', () => {
 
   describe('Tool Registration', () => {
     it('should expose 5 tools', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let toolsHandler: any;
       server.setRequestHandler = vi.fn((schema, handler) => {
         if (schema === ListToolsRequestSchema) {
@@ -34,6 +35,7 @@ describe('MCP Server for lib-foo', () => {
       const result = await toolsHandler();
       expect(result.tools).toHaveLength(5);
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const toolNames = result.tools.map((t: any) => t.name);
       expect(toolNames).toContain('fooProcess');
       expect(toolNames).toContain('fooGreet');
@@ -45,6 +47,7 @@ describe('MCP Server for lib-foo', () => {
 
   describe('fooProcess Tool', () => {
     it('should process text with prefix and suffix', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let callHandler: any;
       server.setRequestHandler = vi.fn((schema, handler) => {
         if (schema === CallToolRequestSchema) {
@@ -70,6 +73,7 @@ describe('MCP Server for lib-foo', () => {
     });
 
     it('should work without suffix', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let callHandler: any;
       server.setRequestHandler = vi.fn((schema, handler) => {
         if (schema === CallToolRequestSchema) {
@@ -95,6 +99,7 @@ describe('MCP Server for lib-foo', () => {
 
   describe('fooTransform Tool', () => {
     it('should transform array with uppercase', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let callHandler: any;
       server.setRequestHandler = vi.fn((schema, handler) => {
         if (schema === CallToolRequestSchema) {
@@ -120,6 +125,7 @@ describe('MCP Server for lib-foo', () => {
     });
 
     it('should handle reverse transformation', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let callHandler: any;
       server.setRequestHandler = vi.fn((schema, handler) => {
         if (schema === CallToolRequestSchema) {
@@ -146,6 +152,7 @@ describe('MCP Server for lib-foo', () => {
 
   describe('fooFilter Tool', () => {
     it('should filter truthy values', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let callHandler: any;
       server.setRequestHandler = vi.fn((schema, handler) => {
         if (schema === CallToolRequestSchema) {
@@ -170,6 +177,7 @@ describe('MCP Server for lib-foo', () => {
     });
 
     it('should filter by string type', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let callHandler: any;
       server.setRequestHandler = vi.fn((schema, handler) => {
         if (schema === CallToolRequestSchema) {
@@ -196,6 +204,7 @@ describe('MCP Server for lib-foo', () => {
 
   describe('Error Handling', () => {
     it('should handle unknown tool', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let callHandler: any;
       server.setRequestHandler = vi.fn((schema, handler) => {
         if (schema === CallToolRequestSchema) {
@@ -217,6 +226,7 @@ describe('MCP Server for lib-foo', () => {
     });
 
     it('should handle invalid transform type', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let callHandler: any;
       server.setRequestHandler = vi.fn((schema, handler) => {
         if (schema === CallToolRequestSchema) {

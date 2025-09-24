@@ -1,6 +1,6 @@
 # Issue: #19
 # URL: https://github.com/f00b455/ts-pure-template/issues/19
-@pkg(mcp-lib-foo) @issue-19
+@pkg-mcp-lib-foo @issue-19
 Feature: MCP Server Tools for lib-foo
   As a developer
   I want to use lib-foo functions through MCP tools

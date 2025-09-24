@@ -4,6 +4,6 @@ module.exports = {
     requireModule: ['tsx'],
     format: ['progress', 'json:test-results/cucumber-report.json'],
     parallel: 1,
-    tags: '@pkg(mcp-lib-foo)',
+    tags: '@pkg-mcp-lib-foo',
   },
 };
