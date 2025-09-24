@@ -96,6 +96,15 @@ jobs:
 
           git push origin ${{ steps.branch.outputs.name }}
 
+      - name: Create missing labels
+        if: steps.check-branch.outputs.exists == 'false' && steps.check-pr.outputs.exists == 'false'
+        run: |
+          # Create missing labels if they don't exist
+          gh label create "work-in-progress" --description "Pull request is still being worked on" --color "fbca04" || true
+          gh label create "issue-${{ github.event.issue.number }}" --description "Related to issue #${{ github.event.issue.number }}" --color "d73a4a" || true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create Pull Request
         if: steps.check-branch.outputs.exists == 'false' && steps.check-pr.outputs.exists == 'false'
         uses: peter-evans/create-pull-request@v6

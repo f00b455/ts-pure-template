@@ -122,6 +122,11 @@ jobs:
 
             git push origin "$BRANCH_NAME"
 
+            # Create missing labels if they don't exist
+            gh label create "work-in-progress" --description "Pull request is still being worked on" --color "fbca04" || true
+            gh label create "auto-created" --description "Automatically created by GitHub Actions" --color "0052cc" || true
+            gh label create "issue-$ISSUE_NUMBER" --description "Related to issue #$ISSUE_NUMBER" --color "d73a4a" || true
+
             # Create PR
             gh pr create \
               --title "WIP: $ISSUE_TITLE (#$ISSUE_NUMBER)" \
