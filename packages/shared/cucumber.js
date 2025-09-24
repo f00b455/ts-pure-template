@@ -1,11 +1,16 @@
 export default {
   default: {
+    paths: ['features/**/*.feature'],
     require: [
-      '../../packages/cucumber-shared/src/steps/**/*.ts',    // Shared steps (TypeScript ONLY!)
-      'features/step_definitions/**/*.ts'                    // Package-specific steps (TypeScript ONLY!)
+      'features/step_definitions/shared.steps.ts'          // TypeScript ONLY!
     ],
-    format: ['progress-bar', 'json:cucumber-report/cucumber_report.json'],
-    formatOptions: { snippetInterface: 'async-await' },
-    publishQuiet: true,
+    format: [
+      'progress',
+      'json:cucumber-report/cucumber-report.json'
+    ],
+    formatOptions: {},
+    parallel: 1,  // ESM safe
+    retry: 0,
+    strict: true,
   },
 };

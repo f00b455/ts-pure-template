@@ -1,5 +1,5 @@
 import { Given, When, Then } from '@cucumber/cucumber';
-import { fooTransform, fooFilter, fooProcess, createFooProcessor, FooConfig } from '../../dist/src/index.js';
+import { fooTransform, fooFilter, fooProcess, createFooProcessor, fooGreet, FooConfig } from '../../src/index';
 import assert from 'assert';
 
 // Data operations context
@@ -11,6 +11,9 @@ let result: any = null;
 let config: FooConfig | null = null;
 let processor: ReturnType<typeof createFooProcessor> | null = null;
 let processors: ReturnType<typeof createFooProcessor>[] = [];
+
+// Greeting context
+let greetFunction: ReturnType<typeof fooGreet> | null = null;
 
 // Data Operations Steps
 Given('I have access to the foo data operation functions', function () {
@@ -113,10 +116,9 @@ When('I create a processor with this config', function () {
 });
 
 When('I process the input {string}', function (input: string) {
-  if (!processor) {
-    if (!config) throw new Error('Config not set');
-    processor = createFooProcessor(config);
-  }
+  if (!config) throw new Error('Config not set');
+  // Always create a fresh processor to avoid state bleeding between scenarios
+  processor = createFooProcessor(config);
   result = processor.process(input);
 });
 
@@ -149,28 +151,32 @@ Then('processing {string} should always return {string}', function (input: strin
   });
 });
 
-// Greeting Steps (placeholder - need to implement greeting functions)
+// Greeting Steps
 Given('I have access to the foo greeting functions', function () {
-  // TODO: Implement greeting functions in lib-foo
-  return 'pending';
+  // Verify that greeting functions are available via imports
+  assert(typeof fooGreet === 'function');
+  assert(typeof createFooProcessor === 'function');
 });
 
 Given('I have a greeting config with prefix {string}', function (prefix: string) {
-  // TODO: Implement greeting config
-  return 'pending';
+  config = { prefix };
+  greetFunction = fooGreet(config);
 });
 
 When('I greet {string}', function (name: string) {
-  // TODO: Implement greeting functionality
-  return 'pending';
+  if (!greetFunction) {
+    throw new Error('Greeting function not initialized. Set config first.');
+  }
+  result = greetFunction(name);
 });
 
 Then('the result should contain the shared greeting format', function () {
-  // TODO: Implement shared greeting format check
-  return 'pending';
+  // Check that result contains "Hello," which is the shared greeting format
+  assert(typeof result === 'string', 'Result should be a string');
+  assert(result.includes('Hello,'), `Result "${result}" should contain shared greeting format "Hello,"`);
 });
 
 Then('the result should start with {string}', function (expectedStart: string) {
-  // TODO: Implement string start check
-  return 'pending';
+  assert(typeof result === 'string', 'Result should be a string');
+  assert(result.startsWith(expectedStart), `Result "${result}" should start with "${expectedStart}"`);
 });
