@@ -101,6 +101,10 @@ jobs:
 
             ---
             Closes #${{ github.event.issue.number }}
+
+            ### Auto-close behavior
+            - ✅ Issue will auto-close when PR is merged
+            - ✅ Branch will auto-delete after merge
           draft: true
           labels: |
             work-in-progress
