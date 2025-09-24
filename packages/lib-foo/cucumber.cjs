@@ -1,14 +1,8 @@
-const { execSync } = require('child_process');
-
-// Set the TypeScript project for ts-node
-process.env.TS_NODE_PROJECT = '../../tsconfig.cucumber.json';
-
 module.exports = {
   default: {
     paths: ['features/**/*.feature'],
-    requireModule: ['ts-node/register'],
     require: [
-      'features/step_definitions/**/*.cjs'                    // Package-specific steps
+      'features/step_definitions/foo.steps.ts'    // TypeScript ONLY!
     ],
     format: [
       'progress',
@@ -16,7 +10,7 @@ module.exports = {
       'json:cucumber-report/cucumber-report.json',
     ],
     formatOptions: {},
-    parallel: 2,
+    parallel: 1,  // ESM safe
     retry: 0,
     strict: true,
   },

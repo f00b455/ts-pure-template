@@ -11,7 +11,7 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:e2e": "playwright test",
-    "test:cucumber": "cucumber-js"
+    "test:cucumber": "node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js"
   },
   "dependencies": {
     "@ts-template/shared": "workspace:*",
@@ -32,6 +32,7 @@
     "eslint-config-next": "14.1.4",
     "jsdom": "^24.0.0",
     "ts-node": "^10.9.2",
+    "tsx": "^4.7.1",
     "typescript": "^5",
     "vite": "^5.4.20",
     "vitest": "^1.4.0"

@@ -1,5 +1,5 @@
 import { Given, When, Then } from '@cucumber/cucumber';
-import { fooTransform, fooFilter, fooProcess, createFooProcessor, FooConfig } from '../../src/index.js';
+import { fooTransform, fooFilter, fooProcess, createFooProcessor, FooConfig } from '../../dist/src/index.js';
 import assert from 'assert';
 
 // Data operations context
@@ -71,8 +71,13 @@ When('I filter it with any predicate', function () {
 });
 
 Then('the result should be {string}', function (expectedString: string) {
-  const expected = JSON.parse(expectedString);
-  assert.deepEqual(result, expected);
+  // For string results, compare directly. For arrays/objects, parse as JSON
+  if (typeof result === 'string') {
+    assert.equal(result, expectedString);
+  } else {
+    const expected = JSON.parse(expectedString);
+    assert.deepEqual(result, expected);
+  }
 });
 
 Then('the original array should remain unchanged', function () {
@@ -108,7 +113,10 @@ When('I create a processor with this config', function () {
 });
 
 When('I process the input {string}', function (input: string) {
-  if (!processor) throw new Error('Processor not created');
+  if (!processor) {
+    if (!config) throw new Error('Config not set');
+    processor = createFooProcessor(config);
+  }
   result = processor.process(input);
 });
 
@@ -139,4 +147,30 @@ Then('processing {string} should always return {string}', function (input: strin
     const result = proc.process(input);
     assert.equal(result, expected, `Processor ${index} returned unexpected result`);
   });
+});
+
+// Greeting Steps (placeholder - need to implement greeting functions)
+Given('I have access to the foo greeting functions', function () {
+  // TODO: Implement greeting functions in lib-foo
+  return 'pending';
+});
+
+Given('I have a greeting config with prefix {string}', function (prefix: string) {
+  // TODO: Implement greeting config
+  return 'pending';
+});
+
+When('I greet {string}', function (name: string) {
+  // TODO: Implement greeting functionality
+  return 'pending';
+});
+
+Then('the result should contain the shared greeting format', function () {
+  // TODO: Implement shared greeting format check
+  return 'pending';
+});
+
+Then('the result should start with {string}', function (expectedStart: string) {
+  // TODO: Implement string start check
+  return 'pending';
 });

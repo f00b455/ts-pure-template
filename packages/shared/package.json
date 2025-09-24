@@ -18,7 +18,7 @@
     "lint": "eslint . --ext .ts",
     "type-check": "tsc --noEmit",
     "test": "vitest",
-    "test:cucumber": "cucumber-js",
+    "test:cucumber": "node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js",
     "clean": "rm -rf dist"
   },
   "devDependencies": {
