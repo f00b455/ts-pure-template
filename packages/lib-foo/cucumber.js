@@ -3,13 +3,19 @@ process.env.TS_NODE_PROJECT = '../../tsconfig.cucumber.json';
 
 export default {
   default: {
+    paths: ['features/**/*.feature'],
     requireModule: ['ts-node/register/esm'],
     require: [
-      '../../packages/cucumber-shared/dist/steps/**/*.js',   // Shared steps (ESM)
       'features/step_definitions/**/*.ts'                    // Package-specific steps in TypeScript
     ],
-    format: ['progress-bar', 'json:cucumber-report/cucumber_report.json'],
-    formatOptions: { snippetInterface: 'async-await' },
-    publishQuiet: true,
+    format: [
+      'progress',
+      'html:cucumber-report/cucumber-report.html',
+      'json:cucumber-report/cucumber-report.json',
+    ],
+    formatOptions: {},
+    parallel: 2,
+    retry: 0,
+    strict: true,
   },
 };
