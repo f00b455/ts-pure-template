@@ -1,0 +1,45 @@
+# Ignore everything except what's needed for the web app
+node_modules
+.git
+.github
+.changeset
+.turbo
+.cache
+dist
+.env*
+!.env.example
+
+# Development files
+*.log
+*.md
+!README.md
+
+# Test files
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+**/test/**
+**/tests/**
+**/e2e/**
+**/__tests__/**
+**/features/**
+**/cucumber.js
+**/.vitest/**
+
+# Build artifacts from other packages (will be built on Vercel)
+packages/*/dist
+apps/api
+apps/cli
+tools
+
+# Coverage
+coverage
+.nyc_output
+
+# Editor
+.vscode
+.idea
+*.swp
+*.swo
+.DS_Store
