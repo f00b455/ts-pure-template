@@ -2,8 +2,7 @@ module.exports = {
   default: {
     paths: ['features/**/*.feature'],
     require: [
-      'features/**/*.steps.ts',                               // Package-specific steps (TypeScript ONLY!)
-      '../../packages/cucumber-shared/dist/**/*.js'           // Shared steps
+      'features/**/*.steps.ts'                               // Package-specific steps (TypeScript ONLY!)
     ],
     format: [
       'progress',
