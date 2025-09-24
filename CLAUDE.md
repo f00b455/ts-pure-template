@@ -99,6 +99,16 @@ ts-pure-template/
 - `pnpm format` - Format code with Prettier
 - `pnpm changeset` - Create a changeset for versioning
 
+### Pre-Commit Workflow:
+
+**IMPORTANT**: Before committing and pushing any changes, ALWAYS run the following commands in order:
+
+1. `pnpm lint` - Check code style and linting rules
+2. `pnpm build` - Ensure all packages compile successfully
+3. `pnpm test:run` - Run all unit tests to verify functionality
+
+Only commit and push if all three commands pass successfully. Fix any errors or warnings before proceeding with the commit.
+
 ### Package-Specific Commands:
 
 - `pnpm --filter @ts-template/web dev` - Run Next.js in dev mode
