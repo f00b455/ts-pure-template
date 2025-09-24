@@ -1,35 +1,37 @@
-import { Given, When, Then } from '@cucumber/cucumber';
-import { fooTransform, fooFilter, fooProcess, createFooProcessor, FooConfig } from '../../src/index.js';
-import assert from 'assert';
+const { Given, When, Then } = require('@cucumber/cucumber');
+const assert = require('assert');
+
+let fooLib;
 
 // Data operations context
-let inputArray: any[] = [];
-let originalArray: any[] = [];
-let result: any = null;
+let inputArray = [];
+let originalArray = [];
+let result = null;
 
 // Processing context
-let config: FooConfig | null = null;
-let processor: ReturnType<typeof createFooProcessor> | null = null;
-let processors: ReturnType<typeof createFooProcessor>[] = [];
+let config = null;
+let processor = null;
+let processors = [];
 
 // Data Operations Steps
-Given('I have access to the foo data operation functions', function () {
-  // Functions are available via imports - no setup needed
-  assert(typeof fooTransform === 'function');
-  assert(typeof fooFilter === 'function');
+Given('I have access to the foo data operation functions', async function () {
+  // Dynamic import for ES module
+  fooLib = await import('../../dist/src/index.js');
+  assert(typeof fooLib.fooTransform === 'function');
+  assert(typeof fooLib.fooFilter === 'function');
 });
 
-Given('I have an array {string}', function (arrayString: string) {
+Given('I have an array {string}', function (arrayString) {
   inputArray = JSON.parse(arrayString);
   originalArray = [...inputArray]; // Keep copy of original
 });
 
-Given('I have a number array {string}', function (arrayString: string) {
+Given('I have a number array {string}', function (arrayString) {
   inputArray = JSON.parse(arrayString);
   originalArray = [...inputArray];
 });
 
-Given('I have a string array {string}', function (arrayString: string) {
+Given('I have a string array {string}', function (arrayString) {
   inputArray = JSON.parse(arrayString);
   originalArray = [...inputArray];
 });
@@ -40,37 +42,37 @@ Given('I have an empty array', function () {
 });
 
 When('I transform it with uppercase function', function () {
-  result = fooTransform(inputArray, (str: string) => str.toUpperCase());
+  result = fooLib.fooTransform(inputArray, (str) => str.toUpperCase());
 });
 
-When('I transform it with a function that adds {string}', function (suffix: string) {
-  result = fooTransform(inputArray, (str: string) => str + suffix);
+When('I transform it with a function that adds {string}', function (suffix) {
+  result = fooLib.fooTransform(inputArray, (str) => str + suffix);
 });
 
 When('I filter it for even numbers', function () {
-  result = fooFilter(inputArray, (num: number) => num % 2 === 0);
+  result = fooLib.fooFilter(inputArray, (num) => num % 2 === 0);
 });
 
-When('I filter it for items containing {string}', function (searchText: string) {
-  result = fooFilter(inputArray, (str: string) => str.includes(searchText));
+When('I filter it for items containing {string}', function (searchText) {
+  result = fooLib.fooFilter(inputArray, (str) => str.includes(searchText));
 });
 
 When('I transform and filter the array', function () {
   // Transform to uppercase
-  const transformed = fooTransform(inputArray, (str: string) => str.toUpperCase());
+  const transformed = fooLib.fooTransform(inputArray, (str) => str.toUpperCase());
   // Filter for items longer than 4 characters
-  result = fooFilter(transformed, (str: string) => str.length > 4);
+  result = fooLib.fooFilter(transformed, (str) => str.length > 4);
 });
 
 When('I transform it with any function', function () {
-  result = fooTransform(inputArray, (x: any) => x);
+  result = fooLib.fooTransform(inputArray, (x) => x);
 });
 
 When('I filter it with any predicate', function () {
-  result = fooFilter(inputArray, () => true);
+  result = fooLib.fooFilter(inputArray, () => true);
 });
 
-Then('the result should be {string}', function (expectedString: string) {
+Then('the result should be {string}', function (expectedString) {
   const expected = JSON.parse(expectedString);
   assert.deepEqual(result, expected);
 });
@@ -89,25 +91,28 @@ Then('the result should be an empty array', function () {
 });
 
 // Processing Steps
-Given('I have access to the foo processing functions', function () {
-  assert(typeof fooProcess === 'function');
-  assert(typeof createFooProcessor === 'function');
+Given('I have access to the foo processing functions', async function () {
+  if (!fooLib) {
+    fooLib = await import('../../dist/src/index.js');
+  }
+  assert(typeof fooLib.fooProcess === 'function');
+  assert(typeof fooLib.createFooProcessor === 'function');
 });
 
-Given('I have a config with prefix {string}', function (prefix: string) {
+Given('I have a config with prefix {string}', function (prefix) {
   config = { prefix };
 });
 
-Given('I have a config with prefix {string} and suffix {string}', function (prefix: string, suffix: string) {
+Given('I have a config with prefix {string} and suffix {string}', function (prefix, suffix) {
   config = { prefix, suffix };
 });
 
 When('I create a processor with this config', function () {
   if (!config) throw new Error('Config not set');
-  processor = createFooProcessor(config);
+  processor = fooLib.createFooProcessor(config);
 });
 
-When('I process the input {string}', function (input: string) {
+When('I process the input {string}', function (input) {
   if (!processor) throw new Error('Processor not created');
   result = processor.process(input);
 });
@@ -115,9 +120,9 @@ When('I process the input {string}', function (input: string) {
 When('I create processors with this config multiple times', function () {
   if (!config) throw new Error('Config not set');
   processors = [
-    createFooProcessor(config),
-    createFooProcessor(config),
-    createFooProcessor(config)
+    fooLib.createFooProcessor(config),
+    fooLib.createFooProcessor(config),
+    fooLib.createFooProcessor(config)
   ];
 });
 
@@ -134,7 +139,7 @@ Then('all processors should behave identically', function () {
   });
 });
 
-Then('processing {string} should always return {string}', function (input: string, expected: string) {
+Then('processing {string} should always return {string}', function (input, expected) {
   processors.forEach((proc, index) => {
     const result = proc.process(input);
     assert.equal(result, expected, `Processor ${index} returned unexpected result`);

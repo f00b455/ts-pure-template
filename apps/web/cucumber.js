@@ -8,7 +8,7 @@ module.exports = {
     paths: ['features/**/*.feature'],
     requireModule: ['ts-node/register'],
     require: [
-      '../../packages/cucumber-shared/dist/steps/**/*.js',  // Shared steps
+      '../../packages/cucumber-shared/dist/steps/**/*.cjs',  // Shared steps (CommonJS)
       'features/**/*.steps.ts'                                // Package-specific steps
     ],
     format: [
