@@ -239,10 +239,33 @@ packages/lib-foo/
 │   ├── foo-greeting.feature        # Integration features
 │   ├── foo-data-operations.feature # Data transformation features
 │   └── step_definitions/
-│       └── foo.steps.ts            # Step implementations
-├── cucumber.js                     # Cucumber configuration
+│       └── foo.steps.ts            # Package-specific step implementations
+├── cucumber.cjs                    # Cucumber configuration
 └── package.json                    # Includes test:cucumber script
 ```
+
+### Shared Cucumber Steps:
+
+To avoid duplication, common step definitions are centralized in `packages/cucumber-shared/`:
+
+```
+packages/cucumber-shared/
+├── src/
+│   ├── index.ts                    # Re-exports all steps and types
+│   └── steps/
+│       ├── common.steps.ts         # Generic Given/When/Then steps
+│       ├── assertions.steps.ts     # Common assertion patterns
+│       ├── data-operations.steps.ts # Array and data manipulation steps
+│       └── api.steps.ts            # API testing common steps
+├── package.json
+└── tsup.config.ts                  # Build configuration
+```
+
+**Using Shared Steps:**
+- All cucumber configurations automatically include shared steps
+- Package-specific steps extend or override shared functionality
+- Shared steps use a common World context interface
+- Packages can extend the World interface for local state
 
 ### Running BDD Tests:
 
