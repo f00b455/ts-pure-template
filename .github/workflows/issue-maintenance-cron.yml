@@ -76,10 +76,10 @@ jobs:
             echo "🔧 Processing issue #$ISSUE_NUMBER"
 
             # Get issue details
-            ISSUE_DATA=$(gh issue view $ISSUE_NUMBER --json title,body,assignees,user)
+            ISSUE_DATA=$(gh issue view $ISSUE_NUMBER --json title,body,assignees,author)
             ISSUE_TITLE=$(echo "$ISSUE_DATA" | jq -r '.title')
             ISSUE_BODY=$(echo "$ISSUE_DATA" | jq -r '.body // ""')
-            ISSUE_USER=$(echo "$ISSUE_DATA" | jq -r '.user.login')
+            ISSUE_USER=$(echo "$ISSUE_DATA" | jq -r '.author.login')
 
             # Create branch name
             CLEAN_TITLE=$(echo "$ISSUE_TITLE" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//' | sed 's/-$//' | cut -c1-50)

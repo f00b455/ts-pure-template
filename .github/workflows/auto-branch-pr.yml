@@ -92,7 +92,7 @@ jobs:
           - Create branch for: ${{ github.event.issue.title }}
           - Issue: ${{ github.event.issue.html_url }}
 
-          Co-authored-by: ${{ github.event.issue.user.login }} <${{ github.event.issue.user.id }}+${{ github.event.issue.user.login }}@users.noreply.github.com>"
+          Co-authored-by: ${{ github.event.issue.user.login }} <${{ github.event.issue.user.login }}@users.noreply.github.com>"
 
           git push origin ${{ steps.branch.outputs.name }}
 
