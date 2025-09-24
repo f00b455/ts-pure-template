@@ -116,10 +116,9 @@ When('I create a processor with this config', function () {
 });
 
 When('I process the input {string}', function (input: string) {
-  if (!processor) {
-    if (!config) throw new Error('Config not set');
-    processor = createFooProcessor(config);
-  }
+  if (!config) throw new Error('Config not set');
+  // Always create a fresh processor to avoid state bleeding between scenarios
+  processor = createFooProcessor(config);
   result = processor.process(input);
 });
 

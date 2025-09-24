@@ -1,71 +1,79 @@
 import { Given, When, Then } from '@cucumber/cucumber';
-import { expect } from 'vitest';
-import { greet, formatDate } from '../../src/index';
+import assert from 'assert';
+import { greet, formatDate } from '../../dist/src/index.js';
 
-import type { CommonWorld } from '@ts-template/cucumber-shared';
-
-interface SharedWorld extends CommonWorld {
-  greetFunction?: typeof greet;
-  formatDateFunction?: typeof formatDate;
-  inputDate?: Date;
-  originalDateString?: string;
-}
+// Module-level context variables (same pattern as lib-foo)
+let greetFunction: typeof greet | null = null;
+let formatDateFunction: typeof formatDate | null = null;
+let inputDate: Date | null = null;
+let originalDateString: string | null = null;
+let result: any = null;
+let results: any[] = [];
 
 // Greet function steps
-Given('I have access to the shared greet function', function (this: SharedWorld) {
-  this.greetFunction = greet;
+Given('I have access to the shared greet function', function () {
+  greetFunction = greet;
 });
 
-When('I call greet with {string}', function (this: SharedWorld, name: string) {
-  this.result = this.greetFunction!(name);
+When('I call greet with {string}', function (name: string) {
+  result = greetFunction!(name);
 });
 
-When('I call greet with {string} multiple times', function (this: SharedWorld, name: string) {
-  this.results = [];
+When('I call greet with {string} multiple times', function (name: string) {
+  results = [];
   for (let i = 0; i < 5; i++) {
-    this.results.push(this.greetFunction!(name));
+    results.push(greetFunction!(name));
   }
-  this.result = this.results[0] || '';
+  result = results[0] || '';
 });
 
-// Using shared "Then('the result should be {string}')" step from cucumber-shared
+// Shared steps that were previously in cucumber-shared
+Then('the result should be {string}', function (expectedResult: string) {
+  assert.equal(result, expectedResult);
+});
 
-// Using shared "Then('all results should be identical')" step from cucumber-shared
-// Note: The shared step uses assert.deepEqual instead of expect().toBe()
+Then('all results should be identical', function () {
+  assert(Array.isArray(results), 'Results should be an array');
+  assert(results.length > 1, 'Should have multiple results to compare');
+  const firstResult = results[0];
+  results.forEach((res, index) => {
+    assert.equal(res, firstResult, `Result ${index} should match first result`);
+  });
+});
 
 // Date formatting function steps
-Given('I have access to the shared formatDate function', function (this: SharedWorld) {
-  this.formatDateFunction = formatDate;
+Given('I have access to the shared formatDate function', function () {
+  formatDateFunction = formatDate;
 });
 
-Given('I have a date {string}', function (this: SharedWorld, dateString: string) {
-  this.inputDate = new Date(dateString);
-  this.originalDateString = this.inputDate.toISOString();
+Given('I have a date {string}', function (dateString: string) {
+  inputDate = new Date(dateString);
+  originalDateString = inputDate.toISOString();
 });
 
-Given('I have a date object', function (this: SharedWorld) {
-  this.inputDate = new Date('2024-06-15T14:30:00Z');
-  this.originalDateString = this.inputDate.toISOString();
+Given('I have a date object', function () {
+  inputDate = new Date('2024-06-15T14:30:00Z');
+  originalDateString = inputDate.toISOString();
 });
 
-When('I call formatDate with that date', function (this: SharedWorld) {
-  this.result = this.formatDateFunction!(this.inputDate!);
+When('I call formatDate with that date', function () {
+  result = formatDateFunction!(inputDate!);
 });
 
-When('I call formatDate with that date multiple times', function (this: SharedWorld) {
-  this.results = [];
+When('I call formatDate with that date multiple times', function () {
+  results = [];
   for (let i = 0; i < 5; i++) {
-    this.results.push(this.formatDateFunction!(this.inputDate!));
+    results.push(formatDateFunction!(inputDate!));
   }
-  this.result = this.results[0] || '';
+  result = results[0] || '';
 });
 
-Then('the original date object should remain unchanged', function (this: SharedWorld) {
-  expect(this.inputDate!.toISOString()).toBe(this.originalDateString);
+Then('the original date object should remain unchanged', function () {
+  assert.equal(inputDate!.toISOString(), originalDateString, 'Date object should remain unchanged');
 });
 
-Then('the function should not modify its input', function (this: SharedWorld) {
+Then('the function should not modify its input', function () {
   // This is enforced by TypeScript readonly parameter
   // We verify the date hasn't changed
-  expect(this.inputDate!.toISOString()).toBe(this.originalDateString);
+  assert.equal(inputDate!.toISOString(), originalDateString, 'Input date should not be modified');
 });
