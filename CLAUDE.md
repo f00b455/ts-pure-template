@@ -69,6 +69,7 @@ ts-pure-template/
 │   └── cli/          # CLI applications
 ├── packages/
 │   ├── shared/       # Shared TypeScript utilities and types
+│   ├── cucumber-shared/ # Shared Cucumber step definitions
 │   ├── core/         # Core business logic and functionalities
 │   ├── mcp-*/        # MCP (Model Context Protocol) servers
 │   └── lib-*/        # Reusable libraries
@@ -208,6 +209,17 @@ Feature: [Feature Name]
 - Include error handling scenarios
 - Verify integration points between libraries
 
+### Shared Cucumber Step Definitions:
+The monorepo uses a shared package for common Cucumber step definitions to reduce code duplication:
+- **Package**: `packages/cucumber-shared`
+- **Common Steps Categories**:
+  - `common.steps.ts` - Generic Given/When/Then steps ("I have access to", "the result should be")
+  - `assertions.steps.ts` - Common assertion patterns (error checking, format validation)
+  - `data-operations.steps.ts` - Array and data manipulation steps
+  - `api.steps.ts` - API testing common steps (server status, response times)
+- **Usage**: All packages automatically include shared steps via cucumber configuration
+- **Package-specific steps** remain in their respective `features/step_definitions/` directories
+
 ### Example Library BDD Structure:
 ```
 packages/lib-foo/
@@ -216,9 +228,25 @@ packages/lib-foo/
 │   ├── foo-greeting.feature        # Integration features
 │   ├── foo-data-operations.feature # Data transformation features
 │   └── step_definitions/
-│       └── foo.steps.ts            # Step implementations
-├── cucumber.js                     # Cucumber configuration
+│       └── foo.steps.ts            # Package-specific step implementations
+├── cucumber.cjs                    # Cucumber configuration (includes shared steps)
 └── package.json                    # Includes test:cucumber script
+```
+
+### Cucumber Configuration Example:
+```javascript
+// packages/lib-foo/cucumber.cjs
+module.exports = {
+  default: {
+    requireModule: ['tsx/cjs'],
+    require: [
+      '../../packages/cucumber-shared/dist/steps/**/*.js', // Shared steps
+      'features/step_definitions/**/*.ts'                   // Package-specific steps
+    ],
+    format: ['progress-bar', 'json:cucumber-report/cucumber_report.json'],
+    formatOptions: {},
+  },
+};
 ```
 
 ### Running BDD Tests:

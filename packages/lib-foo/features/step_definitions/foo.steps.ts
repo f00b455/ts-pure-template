@@ -1,6 +1,8 @@
 import { Given, When, Then } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
 import { fooProcess, fooGreet, fooTransform, fooFilter } from '../../src/index';
+// Note: Common steps are now imported from cucumber-shared package
+// The following steps are package-specific and remain here
 
 let config: any;
 let greetConfig: any;
@@ -14,18 +16,8 @@ let results: any;
 let transformer: any;
 let predicate: any;
 
-// Foo Processing steps
-Given('I have access to the foo processing functions', function () {
-    // Functions are available through imports
-});
-
-Given('I have a config with prefix {string}', function (prefix: string) {
-    config = { prefix };
-});
-
-Given('I have a config with prefix {string} and suffix {string}', function (prefix: string, suffix: string) {
-    config = { prefix, suffix };
-});
+// Package-specific Foo Processing steps
+// Note: "I have access to" and "config with prefix" steps are now in shared package
 
 When('I process the input {string}', function (input: string) {
     processor = fooProcess(config);
@@ -40,15 +32,7 @@ When('I create processors with this config multiple times', function () {
     processor = processors[0];
 });
 
-Then('the result should be {string}', function (expectedResult: string) {
-    // For array results, parse JSON; for string results, compare directly
-    if (Array.isArray(result)) {
-        const expected = JSON.parse(expectedResult);
-        assert.deepEqual(result, expected);
-    } else {
-        assert.equal(result, expectedResult);
-    }
-});
+// Note: "the result should be" step is now in shared package
 
 Then('all processors should behave identically', function () {
     const testInput = 'test';
@@ -63,9 +47,7 @@ Then('processing {string} should always return {string}', function (input: strin
 });
 
 // Foo Greeting steps
-Given('I have access to the foo greeting functions', function () {
-    // Functions are available through imports
-});
+// Note: "I have access to" step is now in shared package
 
 Given('I have a greeting config with prefix {string}', function (prefix: string) {
     greetConfig = { prefix };
@@ -76,39 +58,10 @@ When('I greet {string}', function (name: string) {
     result = greeter(name);
 });
 
-Then('the result should contain the shared greeting format', function () {
-    assert.equal(typeof result, 'string');
-    assert.match(result, /Hello, .+!|Error: Name cannot be empty/);
-});
-
-Then('the result should start with {string}', function (prefix: string) {
-    assert.ok(result.startsWith(prefix));
-});
+// Note: "result should contain" and "result should start with" steps are now in shared package
 
 // Data Operations steps
-Given('I have access to the foo data operation functions', function () {
-    // Functions are available through imports
-});
-
-Given('I have an array {string}', function (arrayString: string) {
-    inputArray = JSON.parse(arrayString);
-    originalArray = [...inputArray];
-});
-
-Given('I have a number array {string}', function (arrayString: string) {
-    inputArray = JSON.parse(arrayString);
-    originalArray = [...inputArray];
-});
-
-Given('I have a string array {string}', function (arrayString: string) {
-    inputArray = JSON.parse(arrayString);
-    originalArray = [...inputArray];
-});
-
-Given('I have an empty array', function () {
-    inputArray = [];
-    originalArray = [];
-});
+// Note: Array initialization steps are now in shared package
 
 When('I transform it with uppercase function', function () {
     transformer = (item: any) => item.toUpperCase();
@@ -147,19 +100,4 @@ When('I filter it with any predicate', function () {
     result = fooFilter(inputArray, predicate);
 });
 
-Then('the array result should be {string}', function (expectedArray: string) {
-    const expected = JSON.parse(expectedArray);
-    assert.deepEqual(result, expected);
-});
-
-Then('the original array should remain unchanged', function () {
-    assert.deepEqual(inputArray, originalArray);
-});
-
-Then('the functions should return new arrays', function () {
-    assert.notEqual(result, inputArray);
-});
-
-Then('the result should be an empty array', function () {
-    assert.deepEqual(result, []);
-});
+// Note: Array assertion steps are now in shared package

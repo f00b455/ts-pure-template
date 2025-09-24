@@ -7,7 +7,10 @@ module.exports = {
   default: {
     paths: ['features/**/*.feature'],
     requireModule: ['ts-node/register'],
-    require: ['features/**/*.steps.ts'],
+    require: [
+      '../../packages/cucumber-shared/dist/steps/**/*.js', // Shared steps
+      'features/**/*.steps.ts'                              // Package-specific steps
+    ],
     format: [
       'progress',
       'html:cucumber-report/cucumber-report.html',
