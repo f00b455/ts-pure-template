@@ -16,7 +16,7 @@
     "type-check": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:cucumber": "cucumber-js",
+    "test:cucumber": "node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js --config cucumber.cjs",
     "clean": "rm -rf dist *.log"
   },
   "dependencies": {
@@ -38,6 +38,7 @@
     "@typescript-eslint/parser": "^6.21.0",
     "eslint": "^8",
     "tsup": "^8.0.1",
+    "tsx": "^4.20.5",
     "typescript": "^5",
     "vitest": "^1.2.2"
   }
