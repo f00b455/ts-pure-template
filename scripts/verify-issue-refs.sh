@@ -2,6 +2,7 @@
 
 # Script to verify that all feature files have proper issue references
 # This is called from CI but can also be run locally
+# Updated: 2025-09-24
 
 echo "Checking feature files for issue references..."
 REPO="${GITHUB_REPOSITORY:-f00b455/ts-pure-template}"
