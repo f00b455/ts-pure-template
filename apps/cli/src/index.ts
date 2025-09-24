@@ -13,12 +13,18 @@ const delay = (ms: number): Promise<void> =>
   new Promise(resolve => setTimeout(resolve, ms));
 
 const runSpinner = async (): Promise<void> => {
+  // Use shorter delay for testing (can be controlled via env var)
+  const spinnerDelay = process.env.NODE_ENV === 'test' ? 100 : 5000;
   const spinner = createSpinner('Preparing something awesome...').start();
-  await delay(5000);
+  await delay(spinnerDelay);
   spinner.success({ text: 'Ready!' });
+  console.log('Spinner completed: Ready!');
 };
 
 const runProgressBar = async (): Promise<void> => {
+  // Use shorter delay for testing
+  const progressDelay = process.env.NODE_ENV === 'test' ? 1 : 30;
+
   const progressBar = new cliProgress.SingleBar({
     format: pc.cyan('Progress |') + pc.green('{bar}') + pc.cyan('| {percentage}% | {value}/{total}'),
     barCompleteChar: '\u2588',
@@ -30,10 +36,11 @@ const runProgressBar = async (): Promise<void> => {
 
   for (let i = 0; i <= 100; i++) {
     progressBar.update(i);
-    await delay(30); // 3 seconds total (30ms * 100)
+    await delay(progressDelay); // 100ms total in test mode, 3 seconds in normal mode
   }
 
   progressBar.stop();
+  console.log('Progress completed: 100%');
 };
 
 const displayGreeting = (name: string): void => {
