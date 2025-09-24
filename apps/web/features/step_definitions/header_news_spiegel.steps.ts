@@ -1,9 +1,8 @@
 import { Given, When, Then } from '@cucumber/cucumber';
-import { expect } from '@playwright/test';
-import type { Page } from '@playwright/test';
 
-let page: Page;
-let apiResponse: any;
+// Mock variables for testing
+let page;
+let apiResponse;
 
 Given('die Anwendung ist geöffnet', async function () {
   // This would be initialized in the test setup
