@@ -24,16 +24,11 @@ jobs:
         run: |
           echo "🔍 Scanning all open issues for missing branches/PRs..."
 
-          # Get all open issues with specific criteria
+          # Get all open issues (any open issue should potentially get a branch/PR)
           ISSUES=$(gh issue list \
             --state open \
             --json number,title,assignees,labels \
-            --jq '.[] | select(
-              (.assignees | length > 0) or
-              (.labels[].name | contains("auto-pr")) or
-              (.labels[].name | contains("feature")) or
-              (.labels[].name | contains("bug"))
-            ) | .number')
+            --jq '.[].number')
 
           echo "Found issues to check: $ISSUES"
 

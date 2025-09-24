@@ -7,12 +7,8 @@ on:
 jobs:
   create-branch-and-pr:
     runs-on: ubuntu-latest
-    # Only run if issue has certain labels or is assigned, and no branch exists yet
-    if: |
-      (github.event.issue.assignee != null ||
-       contains(github.event.issue.labels.*.name, 'auto-pr') ||
-       contains(github.event.issue.labels.*.name, 'feature') ||
-       contains(github.event.issue.labels.*.name, 'bug'))
+    # Run for any issue event (opened, assigned, edited)
+    if: true
 
     permissions:
       contents: write
