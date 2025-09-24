@@ -1,3 +1,6 @@
+# Issue: #7
+# URL: https://github.com/f00b455/ts-pure-template/issues/7
+@pkg(lib-foo) @issue-7
 Feature: Foo Greeting Integration
   As a developer using the lib-foo library
   I want to create greeting functions with foo processing

@@ -1,3 +1,6 @@
+# Issue: #7
+# URL: https://github.com/f00b455/ts-pure-template/issues/7
+@pkg(api) @issue-7
 Feature: Greeting API
   As a user
   I want to get a greeting message

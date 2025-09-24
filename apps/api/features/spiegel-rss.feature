@@ -1,3 +1,6 @@
+# Issue: #7
+# URL: https://github.com/f00b455/ts-pure-template/issues/7
+@pkg(api) @issue-7
 Feature: SPIEGEL RSS Headline Display
   As a User
   I want to see the latest SPIEGEL RSS headline in the website header
