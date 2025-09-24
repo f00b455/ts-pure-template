@@ -2,17 +2,17 @@ name: Auto Create Branch and PR for Issues
 
 on:
   issues:
-    types: [opened, assigned]
+    types: [opened, assigned, edited]
 
 jobs:
   create-branch-and-pr:
     runs-on: ubuntu-latest
-    # Only run if issue has certain labels or is assigned
+    # Only run if issue has certain labels or is assigned, and no branch exists yet
     if: |
-      github.event.issue.assignee != null ||
-      contains(github.event.issue.labels.*.name, 'auto-pr') ||
-      contains(github.event.issue.labels.*.name, 'feature') ||
-      contains(github.event.issue.labels.*.name, 'bug')
+      (github.event.issue.assignee != null ||
+       contains(github.event.issue.labels.*.name, 'auto-pr') ||
+       contains(github.event.issue.labels.*.name, 'feature') ||
+       contains(github.event.issue.labels.*.name, 'bug'))
 
     permissions:
       contents: write
@@ -34,7 +34,36 @@ jobs:
           BRANCH_NAME="issue-${ISSUE_NUMBER}-${CLEAN_TITLE}"
           echo "name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
 
+      - name: Check if branch already exists
+        id: check-branch
+        run: |
+          # Check if branch already exists
+          if git ls-remote --heads origin ${{ steps.branch.outputs.name }} | grep -q ${{ steps.branch.outputs.name }}; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "🔍 Branch ${{ steps.branch.outputs.name }} already exists"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "✨ Branch ${{ steps.branch.outputs.name }} does not exist yet"
+          fi
+
+      - name: Check if PR already exists
+        if: steps.check-branch.outputs.exists == 'false'
+        id: check-pr
+        run: |
+          # Check if PR already exists for this issue
+          PR_EXISTS=$(gh pr list --state open --search "in:title #${{ github.event.issue.number }}" --json number --jq length)
+          if [ "$PR_EXISTS" -gt 0 ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "🔍 PR already exists for issue #${{ github.event.issue.number }}"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "✨ No PR exists yet for issue #${{ github.event.issue.number }}"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create and push branch
+        if: steps.check-branch.outputs.exists == 'false' && steps.check-pr.outputs.exists == 'false'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -72,6 +101,7 @@ jobs:
           git push origin ${{ steps.branch.outputs.name }}
 
       - name: Create Pull Request
+        if: steps.check-branch.outputs.exists == 'false' && steps.check-pr.outputs.exists == 'false'
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -110,7 +140,8 @@ jobs:
             work-in-progress
             issue-${{ github.event.issue.number }}
 
-      - name: Comment on Issue
+      - name: Comment on Issue (New Branch/PR)
+        if: steps.check-branch.outputs.exists == 'false' && steps.check-pr.outputs.exists == 'false'
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.issue.number }}
@@ -127,3 +158,16 @@ jobs:
             ```
 
             The PR will be linked to this issue and will auto-close it when merged.
+
+      - name: Comment on Issue (Already Exists)
+        if: steps.check-branch.outputs.exists == 'true' || steps.check-pr.outputs.exists == 'true'
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            ℹ️ **Branch and/or PR already exists for this issue**
+
+            - Branch `${{ steps.branch.outputs.name }}` or related PR already exists
+            - No new branch/PR created to avoid duplicates
+
+            Check existing PRs: [View PRs for this issue](https://github.com/${{ github.repository }}/pulls?q=is%3Aopen+%23${{ github.event.issue.number }})
