@@ -5,6 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Clean Code Principles
 
 ### Code Quality Standards:
+
 - **Single Responsibility**: Each function/class should have one reason to change
 - **Pure Functions**: Prefer functions without side effects when possible
 - **Explicit Types**: Use TypeScript's type system fully - avoid `any`
@@ -13,6 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **No Comments for What**: Code should be self-documenting; comments explain why, not what
 
 ### Pure Function Principles:
+
 - **Deterministic**: Same input always produces same output
 - **No Side Effects**: Don't modify external state, DOM, or global variables
 - **No External Dependencies**: Don't rely on external mutable state
@@ -20,6 +22,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Referential Transparency**: Function calls can be replaced with their return values
 - **Predictable**: Easy to test, debug, and reason about
 - **Examples of Pure Functions**:
+
   ```typescript
   // ✅ Pure - deterministic, no side effects
   const add = (a: number, b: number): number => a + b;
@@ -32,10 +35,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   };
   const getCurrentUser = (): User => database.users.current; // External dependency
   ```
+
 - **When to Use Pure Functions**: Data transformations, calculations, formatting, validation
 - **When Impure is Acceptable**: I/O operations, API calls, database queries, logging
 
 ### Testing Principles:
+
 - **Test-Driven Development**: Write tests first when adding new features
 - **Mock External Dependencies**: Always use mocks for external services/APIs
 - **Test Database**: Always use test database, never production data
@@ -44,6 +49,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **BDD for Libraries**: Every library must have feature files describing user stories and business requirements
 
 ### Architecture Guidelines:
+
 - **Dependency Injection**: Prefer injecting dependencies over tight coupling
 - **Error Handling**: Use explicit error types and handle all error cases
 - **Immutability**: Prefer immutable data structures and operations
@@ -52,6 +58,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Type Safety**: Leverage TypeScript's strict mode for compile-time safety
 
 ### Performance Considerations:
+
 - **Bundle Size**: Keep frontend bundle size minimal
 - **Database Queries**: Use efficient queries and avoid N+1 problems
 - **Caching**: Implement appropriate caching strategies
@@ -81,6 +88,7 @@ ts-pure-template/
 ## Development Commands
 
 ### Root Commands (run these from project root):
+
 - `pnpm dev` - Start all applications in development mode
 - `pnpm build` - Build all packages and applications
 - `pnpm test` - Run unit tests across all packages
@@ -92,6 +100,7 @@ ts-pure-template/
 - `pnpm changeset` - Create a changeset for versioning
 
 ### Package-Specific Commands:
+
 - `pnpm --filter @ts-template/web dev` - Run Next.js in dev mode
 - `pnpm --filter @ts-template/api dev` - Run Fastify API in dev mode
 - `pnpm --filter @ts-template/shared test` - Test shared package only
@@ -99,17 +108,20 @@ ts-pure-template/
 ## Architecture
 
 ### Monorepo Setup:
+
 - **pnpm**: Package manager with workspace support
 - **Turborepo**: Build system and task runner for monorepos
 - **Changesets**: Versioning and changelog management
 
 ### Frontend (apps/web):
+
 - **Next.js 14**: React framework with App Router
 - **Vitest**: Unit testing framework
 - **Playwright**: End-to-end testing
 - Uses shared package via workspace protocol
 
 ### Backend (apps/api):
+
 - **Fastify**: Fast Node.js web framework
 - **Swagger**: API documentation (available at /documentation)
 - **Vitest**: Unit testing
@@ -117,11 +129,13 @@ ts-pure-template/
 - CORS configured for Next.js frontend
 
 ### Shared Package (packages/shared):
+
 - Common TypeScript utilities and types
 - Consumed by both web and API applications
 - Includes comprehensive unit tests
 
 ### Testing Strategy:
+
 - **Unit Tests**: Vitest with mocks for external dependencies
 - **E2E Tests**: Playwright for full application flows
 - **BDD Tests**: Cucumber with Gherkin syntax for business requirements
@@ -130,6 +144,7 @@ ts-pure-template/
 - **Always use test database** (important requirement)
 
 ### CI/CD:
+
 - GitHub Actions with separate jobs for linting, testing, building
 - Automated versioning with Changesets (private packages)
 - Coverage reporting with Codecov
@@ -138,7 +153,9 @@ ts-pure-template/
 ## BDD Requirements for Libraries
 
 ### Mandatory Feature Files:
-Every library package (packages/lib-*, packages/shared) AND application package (apps/*) MUST include:
+
+Every library package (packages/lib-_, packages/shared) AND application package (apps/_) MUST include:
+
 - `.feature` files in the `features/` directory
 - Gherkin scenarios describing user stories and business requirements
 - Step definitions in `features/step_definitions/`
@@ -147,6 +164,7 @@ Every library package (packages/lib-*, packages/shared) AND application package 
 - **GitHub Issue references** (see below)
 
 ### Feature File Structure with Issue References:
+
 ```gherkin
 # Issue: #<ISSUE_NUMBER>
 # URL: https://github.com/<OWNER>/<REPO>/issues/<ISSUE_NUMBER>
@@ -167,6 +185,7 @@ Feature: [Feature Name]
 ```
 
 ### Issue Reference Requirements:
+
 **EVERY feature file in the monorepo MUST contain:**
 
 1. **Header Comments** (first 2 lines):
@@ -183,6 +202,7 @@ Feature: [Feature Name]
    - This ensures full traceability between user stories/issues and BDD tests
 
 4. **Example for Issue #7**:
+
    ```gherkin
    # Issue: #7
    # URL: https://github.com/f00b455/ts-pure-template/issues/7
@@ -193,15 +213,17 @@ Feature: [Feature Name]
 5. **Step Definitions with Dummy Implementations**:
    - When creating new feature files, step definitions MUST be implemented
    - Unimplemented steps should throw an exception with a clear message:
+
    ```typescript
    function unimplemented(step: string): never {
      throw new Error(`UNIMPLEMENTED_STEP: ${step} — please implement.`);
    }
 
-   Given("<condition>", () => unimplemented("Given <condition>"));
+   Given('<condition>', () => unimplemented('Given <condition>'));
    ```
 
 ### Coverage Requirements:
+
 - **One feature file per user story/issue minimum**
 - Cover all public API functions
 - Test pure function properties (determinism, immutability)
@@ -209,6 +231,7 @@ Feature: [Feature Name]
 - Verify integration points between libraries
 
 ### Example Library BDD Structure:
+
 ```
 packages/lib-foo/
 ├── features/
@@ -222,12 +245,14 @@ packages/lib-foo/
 ```
 
 ### Running BDD Tests:
+
 - Individual package: `pnpm --filter @ts-template/lib-foo test:cucumber`
 - All packages: `pnpm test:cucumber` (from root)
 - CI pipeline includes Cucumber test execution
 
 ## Important Notes:
-- Always use test database for tests
+
+- Always use test database for integration tests
 - Use mocks in tests as specified in user requirements
 - TypeScript strict mode enabled across all packages
 - Shared tsconfig.base.json for consistent configuration
