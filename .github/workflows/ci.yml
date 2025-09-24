@@ -27,6 +27,8 @@ jobs:
       - run: pnpm lint
 
       - run: pnpm type-check
+      - name: Verify Issue References
+        run: bash scripts/verify-issue-refs.sh
 
   test:
     name: Unit Tests
@@ -71,7 +73,6 @@ jobs:
       - run: pnpm build
 
       - run: pnpm test:cucumber
-
 
   build:
     name: Build
