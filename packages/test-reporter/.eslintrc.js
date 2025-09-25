@@ -23,5 +23,5 @@ module.exports = {
     '@typescript-eslint/strict-boolean-expressions': 'off',
     'no-console': ['warn', { allow: ['error'] }]
   },
-  ignorePatterns: ['dist', 'node_modules', '*.js', '*.cjs', '*.mjs']
+  ignorePatterns: ['dist', 'node_modules', '*.js', '*.cjs', '*.mjs', '**/*.test.ts', '**/features/**', 'vitest.config.ts', 'tsup.config.ts']
 };
