@@ -9,10 +9,17 @@
  */
 
 // Determine the severity level based on environment variable
-const PHASE = process.env.ESLINT_CLEAN_CODE_PHASE || '1';
+const VALID_PHASES = ['1', '2', '3'];
+const PHASE = VALID_PHASES.includes(process.env.ESLINT_CLEAN_CODE_PHASE)
+  ? process.env.ESLINT_CLEAN_CODE_PHASE
+  : '1';
 const severity = PHASE === '3' ? 'error' : 'warn';
 
 module.exports = {
+  // Enable cache for faster subsequent runs
+  cache: true,
+  cacheLocation: 'node_modules/.cache/eslint/',
+
   rules: {
     // Enforce function length limits - Clean Code principle
     // Rationale: Functions should do one thing (Single Responsibility)

@@ -201,4 +201,150 @@ describe('Test Reporter Module', () => {
       expect(path).toBe('wiki/reports/feature-x/run-456/index.html');
     });
   });
+
+  describe('Helper Functions (via generateWikiIndex)', () => {
+    it('should correctly group reports by branch', () => {
+      const reportsWithMultipleBranches: TestReport[] = [
+        {
+          runId: 'run-1',
+          branch: 'main',
+          commitSha: 'abc123',
+          timestamp: '2024-01-01T10:00:00Z',
+          reportPath: 'reports/main/run-1/index.html',
+          status: 'success'
+        },
+        {
+          runId: 'run-2',
+          branch: 'feature-a',
+          commitSha: 'def456',
+          timestamp: '2024-01-02T10:00:00Z',
+          reportPath: 'reports/feature-a/run-2/index.html',
+          status: 'success'
+        },
+        {
+          runId: 'run-3',
+          branch: 'main',
+          commitSha: 'ghi789',
+          timestamp: '2024-01-03T10:00:00Z',
+          reportPath: 'reports/main/run-3/index.html',
+          status: 'success'
+        },
+        {
+          runId: 'run-4',
+          branch: 'feature-b',
+          commitSha: 'jkl012',
+          timestamp: '2024-01-04T10:00:00Z',
+          reportPath: 'reports/feature-b/run-4/index.html',
+          status: 'failure'
+        }
+      ];
+
+      const index = generateWikiIndex(reportsWithMultipleBranches);
+
+      // Test groupReportsByBranch via branches property
+      expect(Object.keys(index.branches)).toHaveLength(3);
+      expect(index.branches).toHaveProperty('main');
+      expect(index.branches).toHaveProperty('feature-a');
+      expect(index.branches).toHaveProperty('feature-b');
+      expect(index.branches.main).toHaveLength(2);
+      expect(index.branches['feature-a']).toHaveLength(1);
+      expect(index.branches['feature-b']).toHaveLength(1);
+    });
+
+    it('should apply branch retention correctly', () => {
+      const manyReportsInOneBranch: TestReport[] = [];
+      for (let i = 0; i < 15; i++) {
+        manyReportsInOneBranch.push({
+          runId: `run-${i}`,
+          branch: 'main',
+          commitSha: `sha-${i}`,
+          timestamp: new Date(2024, 0, 15 - i).toISOString(), // Newest first
+          reportPath: `reports/main/run-${i}/index.html`,
+          status: 'success'
+        });
+      }
+
+      const index = generateWikiIndex(manyReportsInOneBranch, { maxReportsPerBranch: 5 });
+
+      // Test applyBranchRetention via branches property
+      expect(index.branches.main).toHaveLength(5);
+      expect(index.branches.main[0].runId).toBe('run-0'); // Most recent
+      expect(index.branches.main[4].runId).toBe('run-4'); // 5th most recent
+    });
+  });
+
+  describe('Helper Functions (via generateWikiMarkdown)', () => {
+    it('should generate latest run section correctly', () => {
+      const index = generateWikiIndex(mockReports);
+      const markdown = generateWikiMarkdown(index);
+
+      // Test generateLatestRunSection
+      expect(markdown).toContain('## Latest Run (run-3)');
+      expect(markdown).toContain('- **Branch:** feature-x');
+      expect(markdown).toContain('- **Status:** failure');
+      expect(markdown).toMatch(/- \*\*Time:\*\* .+ UTC/);
+    });
+
+    it('should generate recent runs section correctly', () => {
+      const index = generateWikiIndex(mockReports);
+      const markdown = generateWikiMarkdown(index);
+
+      // Test generateRecentRunsSection
+      expect(markdown).toContain('### Recent Runs');
+      expect(markdown).toMatch(/- feature-x \/ run-3 → \[Report\]/);
+      expect(markdown).toMatch(/- main \/ run-2 → \[Report\]/);
+      expect(markdown).toMatch(/- main \/ run-1 → \[Report\]/);
+    });
+
+    it('should generate branch sections correctly', () => {
+      const index = generateWikiIndex(mockReports);
+      const markdown = generateWikiMarkdown(index);
+
+      // Test generateBranchSection
+      expect(markdown).toContain('### Branch: main');
+      expect(markdown).toContain('### Branch: feature-x');
+      expect(markdown).toMatch(/#### run-2 \(main\)/);
+      expect(markdown).toMatch(/#### run-3 \(feature-x\)/);
+    });
+  });
+
+  describe('Helper Functions (via getReportsToRetain)', () => {
+    it('should use helper functions for grouping and categorization', () => {
+      const reports: TestReport[] = [
+        {
+          runId: 'run-1',
+          branch: 'main',
+          commitSha: 'abc123',
+          timestamp: '2024-01-01T10:00:00Z',
+          reportPath: 'reports/main/run-1/index.html',
+          status: 'success'
+        },
+        {
+          runId: 'run-2',
+          branch: 'feature',
+          commitSha: 'def456',
+          timestamp: '2024-01-02T10:00:00Z',
+          reportPath: 'reports/feature/run-2/index.html',
+          status: 'success'
+        },
+        {
+          runId: 'run-3',
+          branch: 'main',
+          commitSha: 'ghi789',
+          timestamp: '2024-01-03T10:00:00Z',
+          reportPath: 'reports/main/run-3/index.html',
+          status: 'success'
+        }
+      ];
+
+      const { retain, remove } = getReportsToRetain(reports, 1);
+
+      // Test groupReportsToMap and categorizeReports
+      expect(retain).toHaveLength(2); // One per branch
+      expect(remove).toHaveLength(1); // Older main report
+      expect(retain.find(r => r.branch === 'main')?.runId).toBe('run-3');
+      expect(retain.find(r => r.branch === 'feature')?.runId).toBe('run-2');
+      expect(remove[0].runId).toBe('run-1');
+    });
+  });
 });

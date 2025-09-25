@@ -18,12 +18,14 @@ const CLEAN_CODE_RULES = [
   'max-params'
 ];
 
+// Configurable buffer size via environment variable (defaults to 10MB)
+const BUFFER_SIZE = parseInt(process.env.ESLINT_REPORT_BUFFER_SIZE || '10', 10) * 1024 * 1024;
+
 function runLintWithFormat(format = 'json') {
   try {
     const output = execSync(`pnpm lint --format ${format}`, {
       encoding: 'utf8',
-      maxBuffer: 10 * 1024 * 1024 // 10MB buffer for large outputs
-    });
+      maxBuffer: BUFFER_SIZE
     return output;
   } catch (error) {
     // ESLint exits with non-zero when there are warnings/errors
@@ -34,9 +36,12 @@ function runLintWithFormat(format = 'json') {
 
 function analyzeViolations() {
   console.log('🔍 Analyzing Clean Code violations...\n');
+  console.log('⏳ Running ESLint across all packages, this may take a moment...\n');
 
   // Run ESLint with JSON format
+  process.stdout.write('📊 Collecting violations...');
   const jsonOutput = runLintWithFormat('json');
+  process.stdout.write(' Done!\n\n');
 
   if (!jsonOutput) {
     console.log('✅ No violations found!');
@@ -115,7 +120,7 @@ function analyzeViolations() {
   });
 
   // Generate report
-  console.log('📊 Clean Code Violation Report\n');
+  console.log('\n📊 Clean Code Violation Report\n');
   console.log('═'.repeat(50));
 
   console.log('\n📈 Summary:');

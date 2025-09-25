@@ -36,7 +36,7 @@ The codebase uses ESLint rules to automatically enforce Clean Code principles:
 **Phase-Based Migration:**
 Set `ESLINT_CLEAN_CODE_PHASE` environment variable:
 - **Phase 1** (default): `warn` - Assessment phase to identify violations
-- **Phase 2**: `warn` - Gradual refactoring while maintaining CI stability
+- **Phase 2**: `warn` - Progressive refactoring with CI stability
 - **Phase 3**: `error` - Full enforcement, violations break the build
 
 To assess current violations:
