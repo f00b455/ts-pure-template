@@ -325,6 +325,10 @@ importers:
         version: 1.6.1(@types/node@20.19.17)(jsdom@24.1.3)
 
   packages/test-reporter:
+    dependencies:
+      glob:
+        specifier: ^10.3.10
+        version: 10.4.5
     devDependencies:
       '@cucumber/cucumber':
         specifier: ^10.3.1
