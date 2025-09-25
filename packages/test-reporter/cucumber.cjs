@@ -1,7 +1,4 @@
-const shared = require('@ts-template/cucumber-shared/cucumber.cjs');
-
 module.exports = {
-  ...shared,
   paths: ['features/**/*.feature'],
   require: [
     'node_modules/@ts-template/cucumber-shared/dist/**/*.steps.js',
