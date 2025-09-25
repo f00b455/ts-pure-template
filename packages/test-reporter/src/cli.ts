@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { collectReports, copyReports, mergeReports } from './report-collector';
@@ -96,6 +97,7 @@ function parseArgs(args: string[]): CliOptions {
       case '--dry-run':
         options.dryRun = true;
         break;
+
       case '--verbose':
       case '-v':
         options.verbose = true;
@@ -104,10 +106,31 @@ function parseArgs(args: string[]): CliOptions {
       case '-h':
         printHelp();
         process.exit(0);
+
     }
   }
 
   return options;
+}
+
+/**
+ * Validate command line options
+ */
+function validateOptions(options: CliOptions): void {
+  if (options.command === 'publish') {
+    if (!options.wikiPath) {
+      throw new Error('Wiki path is required for publish command');
+    }
+    if (!options.branch) {
+      throw new Error('Branch is required for publish command');
+    }
+    if (!options.runId) {
+      throw new Error('Run ID is required for publish command');
+    }
+    if (!options.commitSha) {
+      throw new Error('Commit SHA is required for publish command');
+    }
+  }
 }
 
 /**
@@ -360,13 +383,14 @@ async function main(): Promise<void> {
   }
 }
 
-// Run if called directly
+
 if (require.main === module) {
   main().catch(error => {
-    console.error(error);
+    console.error('Fatal error:', error);
+
     process.exit(1);
   });
 }
 
-export { main, parseArgs };
-export type { CliOptions };
+export { main, parseArgs, validateOptions };
+

@@ -1,3 +1,7 @@
+export * from './markdown-formatter';
+export * from './report-collector';
+export * from './wiki-publisher';
+
 export interface TestReport {
   runId: string;
   branch: string;
@@ -225,7 +229,3 @@ export function buildReportPath(branch: string, runId: string, basePath = 'repor
   return `${basePath}/${branch}/${runId}/index.html`;
 }
 
-// Export modules
-export * from './markdown-formatter';
-export * from './report-collector';
-export * from './wiki-publisher';
