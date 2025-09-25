@@ -55,7 +55,7 @@ export interface MarkdownOptions {
 export function formatDuration(nanoSeconds?: number): string {
   if (!nanoSeconds) return '0ms';
   const ms = Math.round(nanoSeconds / 1000000);
-  if (ms < 1000) return `${ms}ms`;
+  if (ms < 1500) return `${ms}ms`; // Show ms for anything under 1.5 seconds
   const seconds = (ms / 1000).toFixed(2);
   return `${seconds}s`;
 }
@@ -186,11 +186,11 @@ function generateSummarySection(
     '',
     `## Summary`,
     '',
-    `- **Status:** ${status}`,
-    `- **Branch:** ${options.branch}`,
-    `- **Commit:** ${options.commitSha}`,
-    `- **Timestamp:** ${options.timestamp}`,
-    `- **Duration:** ${formatDuration(stats.duration)}`,
+    `- Status: ${status}`,
+    `- Branch: ${options.branch}`,
+    `- Commit: ${options.commitSha}`,
+    `- Timestamp: ${options.timestamp}`,
+    `- Duration: ${formatDuration(stats.duration)}`,
     ''
   ];
 }

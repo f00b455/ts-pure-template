@@ -142,7 +142,7 @@ export async function collectReports(
       ignore: excludePatterns,
       nodir: true
     });
-    allFiles.push(...matches);
+    if (matches) allFiles.push(...matches);
   }
 
   const uniqueFiles = Array.from(new Set(allFiles));

@@ -147,7 +147,7 @@ describe('markdown-formatter', () => {
       }));
 
       const index = generateIndexPage(reports, { maxReports: 5 });
-      const matches = index.match(/run-\d+/g);
+      const matches = index.match(/\[run-\d+\]/g); // Only match the link text, not the URL
 
       expect(matches?.length).toBe(5);
     });
