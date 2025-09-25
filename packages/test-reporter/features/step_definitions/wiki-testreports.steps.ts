@@ -6,6 +6,110 @@ function unimplemented(step: string): never {
   throw new Error(`UNIMPLEMENTED_STEP: ${step} — please implement.`);
 }
 
+// Helper functions to keep step definitions under 20 lines
+function validateWikiEnabled(world: WikiWorld): string | null {
+  if (!world.repository.wikiEnabled) {
+    return 'Wiki is not enabled for this repository';
+  }
+  return null;
+}
+
+function validateArtifactsAvailable(world: WikiWorld): string | null {
+  if (!world.repository.artifacts || world.pipeline.artifacts.length === 0) {
+    return 'No artifacts available to publish';
+  }
+  return null;
+}
+
+function storeReportsInWiki(world: WikiWorld, reportPath: string): void {
+  for (const artifact of world.pipeline.artifacts) {
+    const fullPath = `${reportPath}${artifact}`;
+    world.wikiContent.reports.set(fullPath, `Content of ${artifact}`);
+  }
+}
+
+function updateBranchIndex(world: WikiWorld): void {
+  const branchReports = world.wikiContent.branchIndexes.get(world.pipeline.branch) || [];
+  branchReports.unshift(world.pipeline.runId);
+  world.wikiContent.branchIndexes.set(world.pipeline.branch, branchReports);
+}
+
+function updateMainIndex(world: WikiWorld, reportPath: string): void {
+  world.wikiContent.index += `\n## Latest Run: ${world.pipeline.runId} (${world.pipeline.commitSha})\n`;
+  world.wikiContent.index += `Branch: ${world.pipeline.branch}\n`;
+  world.wikiContent.index += `[View Reports](${reportPath})\n`;
+}
+
+function generateIndexForBranch(
+  branch: string,
+  runs: WikiWorld['reportHistory']['runs']
+): string {
+  // Sort runs by timestamp descending
+  runs.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+
+  let content = `## Branch: ${branch}\n\n`;
+
+  // List latest N runs (let's say 5)
+  const latestRuns = runs.slice(0, 5);
+  for (const run of latestRuns) {
+    content += `- [${run.runId}](${run.path}) - ${run.timestamp.toISOString()}\n`;
+  }
+  content += '\n';
+
+  return content;
+}
+
+function removeOldRunsFromBranch(
+  world: WikiWorld,
+  branch: string,
+  runsToRemove: string[]
+): void {
+  for (const runId of runsToRemove) {
+    const pathPrefix = `wiki/reports/${branch}/${runId}/`;
+
+    // Remove all reports for this run
+    for (const reportPath of world.wikiContent.reports.keys()) {
+      if (reportPath.startsWith(pathPrefix)) {
+        world.wikiContent.reports.delete(reportPath);
+      }
+    }
+
+    // Remove from history
+    world.reportHistory.runs = world.reportHistory.runs.filter(
+      run => run.runId !== runId
+    );
+  }
+}
+
+function verifyRetentionPolicy(
+  world: WikiWorld,
+  maxRuns: number
+): void {
+  // Verify retention policy was applied
+  for (const [branch, runs] of world.wikiContent.branchIndexes) {
+    if (runs.length > maxRuns) {
+      throw new Error(`Branch ${branch} has ${runs.length} runs, expected max ${maxRuns}`);
+    }
+  }
+
+  // Verify that old reports were removed
+  const allRunIds = new Set<string>();
+  for (const runs of world.wikiContent.branchIndexes.values()) {
+    runs.forEach(runId => allRunIds.add(runId));
+  }
+
+  // Check that only reports for current runs exist
+  for (const reportPath of world.wikiContent.reports.keys()) {
+    const match = reportPath.match(/run-[\d-]+/);
+    if (match) {
+      const runId = match[0];
+      if (!allRunIds.has(runId)) {
+        throw new Error(`Report for removed run ${runId} still exists: ${reportPath}`);
+      }
+    }
+  }
+}
+
 interface WikiWorld {
   repository: {
     wikiEnabled: boolean;
@@ -108,14 +212,17 @@ Given('ein erfolgreicher Pipeline-Lauf auf Branch {string} mit Commit-SHA {strin
 });
 
 When('die Publish-Stage ausgeführt wird', function (this: WikiWorld) {
-  if (!this.repository.wikiEnabled) {
-    this.publishResult.error = 'Wiki is not enabled for this repository';
+  // Validate prerequisites
+  const wikiError = validateWikiEnabled(this);
+  if (wikiError) {
+    this.publishResult.error = wikiError;
     this.publishResult.success = false;
     return;
   }
 
-  if (!this.repository.artifacts || this.pipeline.artifacts.length === 0) {
-    this.publishResult.error = 'No artifacts available to publish';
+  const artifactError = validateArtifactsAvailable(this);
+  if (artifactError) {
+    this.publishResult.error = artifactError;
     this.publishResult.success = false;
     return;
   }
@@ -124,21 +231,9 @@ When('die Publish-Stage ausgeführt wird', function (this: WikiWorld) {
   const reportPath = `wiki/reports/${this.pipeline.branch}/${this.pipeline.runId}/`;
   this.publishResult.reportPath = reportPath;
 
-  // Store reports in wiki content
-  for (const artifact of this.pipeline.artifacts) {
-    const fullPath = `${reportPath}${artifact}`;
-    this.wikiContent.reports.set(fullPath, `Content of ${artifact}`);
-  }
-
-  // Update branch index
-  const branchReports = this.wikiContent.branchIndexes.get(this.pipeline.branch) || [];
-  branchReports.unshift(this.pipeline.runId);
-  this.wikiContent.branchIndexes.set(this.pipeline.branch, branchReports);
-
-  // Update main index
-  this.wikiContent.index += `\n## Latest Run: ${this.pipeline.runId} (${this.pipeline.commitSha})\n`;
-  this.wikiContent.index += `Branch: ${this.pipeline.branch}\n`;
-  this.wikiContent.index += `[View Reports](${reportPath})\n`;
+  storeReportsInWiki(this, reportPath);
+  updateBranchIndex(this);
+  updateMainIndex(this, reportPath);
 
   this.publishResult.success = true;
   this.publishResult.indexUpdated = true;
@@ -270,7 +365,7 @@ When('das Index-Skript läuft', function (this: WikiWorld) {
   // Simulate index script execution
   let updatedIndex = '# Test Reports\n\nAutomatically generated test reports.\n\n';
 
-  // Group runs by branch and sort by timestamp
+  // Group runs by branch
   const runsByBranch = new Map<string, typeof this.reportHistory.runs>();
 
   for (const run of this.reportHistory.runs) {
@@ -281,17 +376,7 @@ When('das Index-Skript läuft', function (this: WikiWorld) {
 
   // Generate index content for each branch
   for (const [branch, runs] of runsByBranch) {
-    // Sort runs by timestamp descending
-    runs.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-
-    updatedIndex += `## Branch: ${branch}\n\n`;
-
-    // List latest N runs (let's say 5)
-    const latestRuns = runs.slice(0, 5);
-    for (const run of latestRuns) {
-      updatedIndex += `- [${run.runId}](${run.path}) - ${run.timestamp.toISOString()}\n`;
-    }
-    updatedIndex += '\n';
+    updatedIndex += generateIndexForBranch(branch, runs);
   }
 
   this.wikiContent.index = updatedIndex;
@@ -428,22 +513,7 @@ When('die Publish-Stage läuft', function (this: WikiWorld) {
       const runsToKeep = runs.slice(0, MAX_RUNS_TO_KEEP);
       const runsToRemove = runs.slice(MAX_RUNS_TO_KEEP);
 
-      // Remove old runs from reports
-      for (const runId of runsToRemove) {
-        const pathPrefix = `wiki/reports/${branch}/${runId}/`;
-
-        // Remove all reports for this run
-        for (const reportPath of this.wikiContent.reports.keys()) {
-          if (reportPath.startsWith(pathPrefix)) {
-            this.wikiContent.reports.delete(reportPath);
-          }
-        }
-
-        // Remove from history
-        this.reportHistory.runs = this.reportHistory.runs.filter(
-          run => run.runId !== runId
-        );
-      }
+      removeOldRunsFromBranch(this, branch, runsToRemove);
 
       // Update branch index
       this.wikiContent.branchIndexes.set(branch, runsToKeep);
@@ -457,30 +527,7 @@ When('die Publish-Stage läuft', function (this: WikiWorld) {
 Then('werden ältere Verzeichnisse entfernt, sodass die Wiki-Größe kontrolliert bleibt', function (this: WikiWorld) {
   const MAX_RUNS_TO_KEEP = 20;
 
-  // Verify retention policy was applied
-  for (const [branch, runs] of this.wikiContent.branchIndexes) {
-    if (runs.length > MAX_RUNS_TO_KEEP) {
-      throw new Error(`Branch ${branch} has ${runs.length} runs, expected max ${MAX_RUNS_TO_KEEP}`);
-    }
-  }
-
-  // Verify that old reports were removed
-  const allRunIds = new Set<string>();
-  for (const runs of this.wikiContent.branchIndexes.values()) {
-    runs.forEach(runId => allRunIds.add(runId));
-  }
-
-  // Check that only reports for current runs exist
-  for (const reportPath of this.wikiContent.reports.keys()) {
-    // Extract run ID from path
-    const match = reportPath.match(/run-[\d-]+/);
-    if (match) {
-      const runId = match[0];
-      if (!allRunIds.has(runId)) {
-        throw new Error(`Report for removed run ${runId} still exists: ${reportPath}`);
-      }
-    }
-  }
+  verifyRetentionPolicy(this, MAX_RUNS_TO_KEEP);
 
   // Verify total number of runs in history
   if (this.reportHistory.runs.length > MAX_RUNS_TO_KEEP) {
