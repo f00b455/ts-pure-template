@@ -1,3 +1,7 @@
+export * from './formatter';
+export * from './collector';
+export * from './publisher';
+
 export interface TestReport {
   runId: string;
   branch: string;
