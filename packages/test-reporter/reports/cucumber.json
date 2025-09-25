@@ -1,0 +1,559 @@
+[
+  {
+    "description": "  Als Entwickler\n  möchte ich alle von der CI/CD-Pipeline erzeugten Testberichte automatisch auf der GitHub-Wiki-Seite sehen\n  damit ich Build-Qualität und Testergebnisse zentral, versionsbezogen und ohne lokale Tools nachvollziehen kann",
+    "elements": [
+      {
+        "description": "",
+        "id": "testberichte-in-github-wiki-veröffentlichen;erfolgreiche-veröffentlichung-eines-laufes",
+        "keyword": "Scenario",
+        "line": 14,
+        "name": "Erfolgreiche Veröffentlichung eines Laufes",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 398125
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 10,
+            "name": "das Repository hat die GitHub Wiki aktiviert",
+            "match": {
+              "location": "features/step_definitions/wiki-testreports.steps.ts:44"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2412750
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 11,
+            "name": "die Pipeline erzeugt Testberichte als Artefakte",
+            "match": {
+              "location": "features/step_definitions/wiki-testreports.steps.ts:49"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 469707
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 15,
+            "name": "ein erfolgreicher Pipeline-Lauf auf Branch \"main\" mit Commit-SHA \"abc123\"",
+            "match": {
+              "location": "features/step_definitions/wiki-testreports.steps.ts:55"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1788375
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 16,
+            "name": "die Publish-Stage ausgeführt wird",
+            "match": {
+              "location": "features/step_definitions/wiki-testreports.steps.ts:63"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 285624
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 17,
+            "name": "werden HTML-Reports unter \"wiki/reports/main/<run-id>/\" abgelegt",
+            "match": {
+              "location": "features/step_definitions/wiki-testreports.steps.ts:73"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 705832
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 18,
+            "name": "die Wiki-Startseite verlinkt \"Letzter Lauf: <run-id> (abc123)\"",
+            "match": {
+              "location": "features/step_definitions/wiki-testreports.steps.ts:81"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 610917
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 19,
+            "name": "die Seite ist öffentlich innerhalb des Projekts einsehbar",
+            "match": {
+              "location": "features/step_definitions/wiki-testreports.steps.ts:88"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 487040
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@pkg(test-reporter)",
+            "line": 3
+          },
+          {
+            "name": "@issue-5",
+            "line": 3
+          },
+          {
+            "name": "@happy-path",
+            "line": 13
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "testberichte-in-github-wiki-veröffentlichen;getrennte-verzeichnisse-pro-branch",
+        "keyword": "Scenario",
+        "line": 22,
+        "name": "Getrennte Verzeichnisse pro Branch",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 143083
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 10,
+            "name": "das Repository hat die GitHub Wiki aktiviert",
+            "match": {
+              "location": "features/step_definitions/wiki-testreports.steps.ts:44"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 125124
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 11,
+            "name": "die Pipeline erzeugt Testberichte als Artefakte",
+            "match": {
+              "location": "features/step_definitions/wiki-testreports.steps.ts:49"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 151124
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 23,
+            "name": "ein Lauf auf Branch \"feature-x\"",
+            "match": {
+              "location": "features/step_definitions/wiki-testreports.steps.ts:93"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 523333
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 24,
+            "name": "die Publish-Stage ausgeführt wird",
+            "match": {
+              "location": "features/step_definitions/wiki-testreports.steps.ts:63"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 24499
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 25,
+            "name": "werden Reports unter \"wiki/reports/feature-x/<run-id>/\" gespeichert",
+            "match": {
+              "location": "features/step_definitions/wiki-testreports.steps.ts:100"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 560541
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 26,
+            "name": "ein Branch-Index existiert und ist verlinkt",
+            "match": {
+              "location": "features/step_definitions/wiki-testreports.steps.ts:105"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 269750
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@pkg(test-reporter)",
+            "line": 3
+          },
+          {
+            "name": "@issue-5",
+            "line": 3
+          },
+          {
+            "name": "@multiple-branches",
+            "line": 21
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "testberichte-in-github-wiki-veröffentlichen;automatische-index-aktualisierung",
+        "keyword": "Scenario",
+        "line": 29,
+        "name": "Automatische Index-Aktualisierung",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 25582
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 10,
+            "name": "das Repository hat die GitHub Wiki aktiviert",
+            "match": {
+              "location": "features/step_definitions/wiki-testreports.steps.ts:44"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 22749
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 11,
+            "name": "die Pipeline erzeugt Testberichte als Artefakte",
+            "match": {
+              "location": "features/step_definitions/wiki-testreports.steps.ts:49"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 17708
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 30,
+            "name": "ein neuer Report wurde abgelegt",
+            "match": {
+              "location": "features/step_definitions/wiki-testreports.steps.ts:110"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 220541
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 31,
+            "name": "das Index-Skript läuft",
+            "match": {
+              "location": "features/step_definitions/wiki-testreports.steps.ts:115"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 157832
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 32,
+            "name": "werden die letzten N Läufe pro Branch gelistet, absteigend sortiert nach Zeit",
+            "match": {
+              "location": "features/step_definitions/wiki-testreports.steps.ts:120"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 347749
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@pkg(test-reporter)",
+            "line": 3
+          },
+          {
+            "name": "@issue-5",
+            "line": 3
+          },
+          {
+            "name": "@index",
+            "line": 28
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "testberichte-in-github-wiki-veröffentlichen;kein-report-vorhanden",
+        "keyword": "Scenario",
+        "line": 35,
+        "name": "Kein Report vorhanden",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 16417
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 10,
+            "name": "das Repository hat die GitHub Wiki aktiviert",
+            "match": {
+              "location": "features/step_definitions/wiki-testreports.steps.ts:44"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 15749
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 11,
+            "name": "die Pipeline erzeugt Testberichte als Artefakte",
+            "match": {
+              "location": "features/step_definitions/wiki-testreports.steps.ts:49"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 21459
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 36,
+            "name": "die Tests erzeugen keine Artefakte oder sind fehlgeschlagen",
+            "match": {
+              "location": "features/step_definitions/wiki-testreports.steps.ts:125"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 319541
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 37,
+            "name": "die Publish-Stage ausgeführt wird",
+            "match": {
+              "location": "features/step_definitions/wiki-testreports.steps.ts:63"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 13124
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 38,
+            "name": "wird ein Eintrag \"Keine Reports verfügbar\" mit Zeitstempel erzeugt",
+            "match": {
+              "location": "features/step_definitions/wiki-testreports.steps.ts:131"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 554042
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 39,
+            "name": "die Pipeline schlägt nicht allein wegen des Wiki-Schritts fehl",
+            "match": {
+              "location": "features/step_definitions/wiki-testreports.steps.ts:135"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 295665
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@pkg(test-reporter)",
+            "line": 3
+          },
+          {
+            "name": "@issue-5",
+            "line": 3
+          },
+          {
+            "name": "@fallback",
+            "line": 34
+          }
+        ],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "testberichte-in-github-wiki-veröffentlichen;aufräumen-alter-reports",
+        "keyword": "Scenario",
+        "line": 42,
+        "name": "Aufräumen alter Reports",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 20333
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 10,
+            "name": "das Repository hat die GitHub Wiki aktiviert",
+            "match": {
+              "location": "features/step_definitions/wiki-testreports.steps.ts:44"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 20333
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 11,
+            "name": "die Pipeline erzeugt Testberichte als Artefakte",
+            "match": {
+              "location": "features/step_definitions/wiki-testreports.steps.ts:49"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 14583
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 43,
+            "name": "mehr als 20 Läufe existieren",
+            "match": {
+              "location": "features/step_definitions/wiki-testreports.steps.ts:140"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 347959
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 44,
+            "name": "die Publish-Stage läuft",
+            "match": {
+              "location": "features/step_definitions/wiki-testreports.steps.ts:144"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 315708
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 45,
+            "name": "werden ältere Verzeichnisse entfernt, sodass die Wiki-Größe kontrolliert bleibt",
+            "match": {
+              "location": "features/step_definitions/wiki-testreports.steps.ts:149"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 218999
+            }
+          }
+        ],
+        "tags": [
+          {
+            "name": "@pkg(test-reporter)",
+            "line": 3
+          },
+          {
+            "name": "@issue-5",
+            "line": 3
+          },
+          {
+            "name": "@retention",
+            "line": 41
+          }
+        ],
+        "type": "scenario"
+      }
+    ],
+    "id": "testberichte-in-github-wiki-veröffentlichen",
+    "line": 4,
+    "keyword": "Feature",
+    "name": "Testberichte in GitHub Wiki veröffentlichen",
+    "tags": [
+      {
+        "name": "@pkg(test-reporter)",
+        "line": 3
+      },
+      {
+        "name": "@issue-5",
+        "line": 3
+      }
+    ],
+    "uri": "features/wiki-testreports.feature"
+  }
+]
