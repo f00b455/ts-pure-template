@@ -99,15 +99,20 @@ ts-pure-template/
 - `pnpm format` - Format code with Prettier
 - `pnpm changeset` - Create a changeset for versioning
 
-### Pre-Commit Workflow:
+### Development Workflow:
 
-**IMPORTANT**: Before committing and pushing any changes, ALWAYS run the following commands in order:
+**AUTOMATED PRE-PUSH VALIDATION**: This repo uses Husky to automatically validate code before each push.
+The pre-push hook runs: `pnpm validate` (lint + type-check + build + test:run + test:cucumber)
 
-1. `pnpm lint` - Check code style and linting rules
-2. `pnpm build` - Ensure all packages compile successfully
-3. `pnpm test:run` - Run all unit tests to verify functionality
+**Development Commands**:
+- `pnpm validate:quick` - Quick validation (lint + type-check + tests) - **Use during development**
+- `pnpm validate` - Full pipeline validation (lint + type-check + build + tests + cucumber) - **Runs automatically on push**
 
-Only commit and push if all three commands pass successfully. Fix any errors or warnings before proceeding with the commit.
+**Efficient Dev Cycle**:
+1. Code freely and commit often (no pre-commit validation)
+2. Run `pnpm validate:quick` during development for fast feedback
+3. When ready to push: `git push` - automatic validation prevents broken CI/CD
+4. If validation fails, fix issues and push again
 
 ### Package-Specific Commands:
 
