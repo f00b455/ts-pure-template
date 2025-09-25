@@ -122,12 +122,14 @@ jobs:
 
             git push origin "$BRANCH_NAME"
 
-            # Create missing labels if they don't exist
-            gh label create "work-in-progress" --description "Pull request is still being worked on" --color "fbca04" || true
-            gh label create "auto-created" --description "Automatically created by GitHub Actions" --color "0052cc" || true
-            gh label create "issue-$ISSUE_NUMBER" --description "Related to issue #$ISSUE_NUMBER" --color "d73a4a" || true
+            # Create missing labels if they don't exist (ignore failures)
+            echo "Creating labels..."
+            gh label create "work-in-progress" --description "Pull request is still being worked on" --color "fbca04" || echo "Label 'work-in-progress' already exists or failed to create"
+            gh label create "auto-created" --description "Automatically created by GitHub Actions" --color "0052cc" || echo "Label 'auto-created' already exists or failed to create"
+            gh label create "issue-$ISSUE_NUMBER" --description "Related to issue #$ISSUE_NUMBER" --color "d73a4a" || echo "Label 'issue-$ISSUE_NUMBER' already exists or failed to create"
 
-            # Create PR
+            # Create PR without labels to avoid failure
+            echo "Creating PR..."
             gh pr create \
               --title "WIP: $ISSUE_TITLE (#$ISSUE_NUMBER)" \
               --body "## 🎯 Addresses #$ISSUE_NUMBER
@@ -147,8 +149,13 @@ jobs:
 
           ---
           Closes #$ISSUE_NUMBER" \
-              --draft \
-              --label "work-in-progress,issue-$ISSUE_NUMBER,auto-created"
+              --draft
+
+            # Try to add labels after PR creation (non-blocking)
+            echo "Attempting to add labels to PR..."
+            gh pr edit --add-label "work-in-progress" || echo "Could not add work-in-progress label"
+            gh pr edit --add-label "auto-created" || echo "Could not add auto-created label"
+            gh pr edit --add-label "issue-$ISSUE_NUMBER" || echo "Could not add issue-$ISSUE_NUMBER label"
 
             # Comment on issue
             gh issue comment $ISSUE_NUMBER --body "🤖 **Automated maintenance: Branch and PR created**
