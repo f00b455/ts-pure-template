@@ -19,7 +19,9 @@ module.exports = {
     es2022: true
   },
   rules: {
-    // Package-specific rules first, then spread base rules
+    // Spread base rules first
+    ...baseConfig.rules,
+    // Then override with package-specific rules
     '@typescript-eslint/explicit-module-boundary-types': 'error',
     '@typescript-eslint/no-explicit-any': 'error',
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
@@ -30,8 +32,6 @@ module.exports = {
     'max-lines': 'off', // Temporarily disabled for implementation
     'complexity': 'off', // Temporarily disabled for implementation
     'max-depth': 'off', // Temporarily disabled for implementation
-    // Base rules last to ensure they take precedence
-    ...baseConfig.rules
   },
   overrides: baseConfig.overrides,
   ignorePatterns: ['dist', 'node_modules', '*.js', '*.cjs', '*.mjs', '**/*.test.ts', '**/features/**', 'vitest.config.ts', 'tsup.config.ts']
