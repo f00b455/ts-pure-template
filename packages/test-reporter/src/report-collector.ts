@@ -103,11 +103,11 @@ function findPackageName(
   // Look for packages/ or apps/ directory
   const packagesIndex = parts.findIndex(p => p === 'packages' || p === 'apps');
   if (packagesIndex >= 0 && parts[packagesIndex + 1]) {
-    return parts[packagesIndex + 1];
+    return parts[packagesIndex + 1] as string;
   }
 
   // Fallback to first directory
-  return parts[0] || 'root';
+  return parts[0] ?? 'root';
 }
 
 /**
@@ -200,7 +200,7 @@ export async function findReportsInDirectory(
 ): Promise<CollectedReport[]> {
   const results = await collectReports({
     rootDir: directory,
-    patterns,
+    ...(patterns && { patterns }),
     recursive: true
   });
 

@@ -59,38 +59,38 @@ function parseArgs(args: string[]): CliOptions {
         break;
       case '--root':
       case '-r':
-        options.rootDir = value;
+        if (value) options.rootDir = value;
         i++;
         break;
       case '--output':
       case '-o':
-        options.outputDir = value;
+        if (value) options.outputDir = value;
         i++;
         break;
       case '--wiki-url':
-        options.wikiUrl = value;
+        if (value) options.wikiUrl = value;
         i++;
         break;
       case '--wiki-path':
-        options.wikiPath = value;
+        if (value) options.wikiPath = value;
         i++;
         break;
       case '--branch':
       case '-b':
-        options.branch = value;
+        if (value) options.branch = value;
         i++;
         break;
       case '--run-id':
-        options.runId = value;
+        if (value) options.runId = value;
         i++;
         break;
       case '--commit':
       case '-c':
-        options.commitSha = value;
+        if (value) options.commitSha = value;
         i++;
         break;
       case '--max-reports':
-        options.maxReports = parseInt(value, 10);
+        if (value) options.maxReports = parseInt(value, 10);
         i++;
         break;
       case '--dry-run':
@@ -305,8 +305,8 @@ async function publishCommand(options: CliOptions): Promise<void> {
     branch: options.branch!,
     runId: options.runId!,
     commitSha: options.commitSha!,
-    maxReportsPerBranch: options.maxReports,
-    dryRun: options.dryRun
+    maxReportsPerBranch: options.maxReports ?? 20,
+    dryRun: options.dryRun ?? false
   });
 
   if (result.success) {
@@ -368,4 +368,5 @@ if (require.main === module) {
   });
 }
 
-export { main, parseArgs, CliOptions };
+export { main, parseArgs };
+export type { CliOptions };
