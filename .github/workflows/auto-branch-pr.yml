@@ -99,51 +99,54 @@ jobs:
       - name: Create missing labels
         if: steps.check-branch.outputs.exists == 'false' && steps.check-pr.outputs.exists == 'false'
         run: |
-          # Create missing labels if they don't exist
-          gh label create "work-in-progress" --description "Pull request is still being worked on" --color "fbca04" || true
-          gh label create "issue-${{ github.event.issue.number }}" --description "Related to issue #${{ github.event.issue.number }}" --color "d73a4a" || true
+          # Create missing labels if they don't exist (ignore failures)
+          echo "Creating labels..."
+          gh label create "work-in-progress" --description "Pull request is still being worked on" --color "fbca04" || echo "Label 'work-in-progress' already exists or failed to create"
+          gh label create "issue-${{ github.event.issue.number }}" --description "Related to issue #${{ github.event.issue.number }}" --color "d73a4a" || echo "Label 'issue-${{ github.event.issue.number }}' already exists or failed to create"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create Pull Request
         if: steps.check-branch.outputs.exists == 'false' && steps.check-pr.outputs.exists == 'false'
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ steps.branch.outputs.name }}
-          base: main
-          title: "WIP: ${{ github.event.issue.title }} (#${{ github.event.issue.number }})"
-          body: |
-            ## 🎯 Addresses #${{ github.event.issue.number }}
+        id: create-pr
+        run: |
+          echo "Creating pull request..."
+          gh pr create \
+            --title "WIP: ${{ github.event.issue.title }} (#${{ github.event.issue.number }})" \
+            --body "## 🎯 Addresses #${{ github.event.issue.number }}
 
-            ### Description
-            ${{ github.event.issue.body }}
+          ### Description
+          ${{ github.event.issue.body }}
 
-            ### Checklist
-            - [ ] Implementation complete
-            - [ ] Tests added/updated
-            - [ ] Documentation updated
-            - [ ] Code review completed
-            - [ ] CI/CD passing
+          ### Checklist
+          - [ ] Implementation complete
+          - [ ] Tests added/updated
+          - [ ] Documentation updated
+          - [ ] Code review completed
+          - [ ] CI/CD passing
 
-            ### Type of Change
-            - [ ] 🐛 Bug fix
-            - [ ] ✨ New feature
-            - [ ] 💔 Breaking change
-            - [ ] 📝 Documentation
-            - [ ] ♻️ Refactoring
-            - [ ] 🎨 Style/UI
+          ### Type of Change
+          - [ ] 🐛 Bug fix
+          - [ ] ✨ New feature
+          - [ ] 💔 Breaking change
+          - [ ] 📝 Documentation
+          - [ ] ♻️ Refactoring
+          - [ ] 🎨 Style/UI
 
-            ---
-            Closes #${{ github.event.issue.number }}
+          ---
+          Closes #${{ github.event.issue.number }}
 
-            ### Auto-close behavior
-            - ✅ Issue will auto-close when PR is merged
-            - ✅ Branch will auto-delete after merge
-          draft: true
-          labels: |
-            work-in-progress
-            issue-${{ github.event.issue.number }}
+          ### Auto-close behavior
+          - ✅ Issue will auto-close when PR is merged
+          - ✅ Branch will auto-delete after merge" \
+            --draft
+
+          # Try to add labels after PR creation (non-blocking)
+          echo "Attempting to add labels to PR..."
+          gh pr edit --add-label "work-in-progress" || echo "Could not add work-in-progress label"
+          gh pr edit --add-label "issue-${{ github.event.issue.number }}" || echo "Could not add issue-${{ github.event.issue.number }} label"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Comment on Issue (New Branch/PR)
         if: steps.check-branch.outputs.exists == 'false' && steps.check-pr.outputs.exists == 'false'
