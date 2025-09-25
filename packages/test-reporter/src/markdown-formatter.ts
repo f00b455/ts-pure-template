@@ -199,7 +199,7 @@ function generateSummarySection(
  * Convert Cucumber JSON report to markdown
  */
 export function cucumberJsonToMarkdown(
-  jsonReport: any[],
+  jsonReport: unknown[],
   options: MarkdownOptions
 ): string {
   const features: Feature[] = jsonReport.map(parseFeature);
@@ -231,20 +231,23 @@ export function cucumberJsonToMarkdown(
 /**
  * Parse feature from Cucumber JSON
  */
-function parseFeature(featureData: any): Feature {
+function parseFeature(featureData: unknown): Feature {
+  const data = featureData as Record<string, unknown>;
   const scenarios: Scenario[] = [];
 
-  for (const element of featureData.elements || []) {
-    if (element.type === 'scenario') {
+  const elements = (data.elements as unknown[]) || [];
+  for (const element of elements) {
+    const el = element as Record<string, unknown>;
+    if (el.type === 'scenario') {
       scenarios.push(parseScenario(element));
     }
   }
 
   return {
-    name: featureData.name || 'Unnamed Feature',
-    description: featureData.description || '',
-    keyword: featureData.keyword || 'Feature',
-    tags: featureData.tags || [],
+    name: (data.name as string) || 'Unnamed Feature',
+    description: (data.description as string) || '',
+    keyword: (data.keyword as string) || 'Feature',
+    tags: (data.tags as Array<{ name: string }>) || [],
     scenarios
   };
 }
@@ -252,42 +255,41 @@ function parseFeature(featureData: any): Feature {
 /**
  * Parse scenario from Cucumber JSON
  */
-function parseScenario(scenarioData: any): Scenario {
-  const steps: Step[] = (scenarioData.steps || []).map(parseStep);
-
-  const hasFailedStep = steps.some(
-    s => s.result?.status === 'failed'
-  );
-  const hasSkippedStep = steps.some(
-    s => s.result?.status === 'skipped'
-  );
-
-  const status = hasFailedStep ? 'failed' :
-    hasSkippedStep ? 'skipped' : 'passed';
-
-  const duration = steps.reduce(
-    (sum, step) => sum + (step.result?.duration || 0),
-    0
-  );
+function parseScenario(scenarioData: unknown): Scenario {
+  const data = scenarioData as Record<string, unknown>;
+  const steps: Step[] = ((data.steps as unknown[]) || []).map(parseStep);
+  const status = getScenarioStatus(steps);
+  const duration = calculateStepsDuration(steps);
 
   return {
-    name: scenarioData.name || 'Unnamed Scenario',
-    keyword: scenarioData.keyword || 'Scenario',
-    tags: scenarioData.tags || [],
+    name: (data.name as string) || 'Unnamed Scenario',
+    keyword: (data.keyword as string) || 'Scenario',
+    tags: (data.tags as Array<{ name: string }>) || [],
     steps,
     status,
     duration
   };
 }
 
+function getScenarioStatus(steps: Step[]): 'passed' | 'failed' | 'skipped' {
+  const hasFailedStep = steps.some(s => s.result?.status === 'failed');
+  const hasSkippedStep = steps.some(s => s.result?.status === 'skipped');
+  return hasFailedStep ? 'failed' : hasSkippedStep ? 'skipped' : 'passed';
+}
+
+function calculateStepsDuration(steps: Step[]): number {
+  return steps.reduce((sum, step) => sum + (step.result?.duration || 0), 0);
+}
+
 /**
  * Parse step from Cucumber JSON
  */
-function parseStep(stepData: any): Step {
+function parseStep(stepData: unknown): Step {
+  const data = stepData as Record<string, unknown>;
   return {
-    name: stepData.name || '',
-    keyword: stepData.keyword || '',
-    result: stepData.result || {
+    name: (data.name as string) || '',
+    keyword: (data.keyword as string) || '',
+    result: (data.result as Step['result']) || {
       status: 'pending',
       duration: 0
     }
@@ -298,55 +300,82 @@ function parseStep(stepData: any): Step {
  * Generate index page for all reports
  */
 export function generateIndexPage(
-  reports: Array<{
-    runId: string;
-    branch: string;
-    timestamp: string;
-    path: string;
-    status: string;
-  }>,
-  options?: { title?: string; maxReports?: number }
+  reports: ReportEntry[],
+  options?: IndexOptions
 ): string {
-  const lines: string[] = [
-    options?.title || '# Test Reports Index',
+  const lines = generateHeader(options?.title);
+  const groupedByBranch = groupReportsByBranch(reports);
+
+  for (const [branch, branchReports] of groupedByBranch) {
+    lines.push(...generateBranchSection(branch, branchReports, options));
+  }
+
+  lines.push(...generateFooter());
+  return lines.join('\n');
+}
+
+interface ReportEntry {
+  runId: string;
+  branch: string;
+  timestamp: string;
+  path: string;
+  status: string;
+}
+
+interface IndexOptions {
+  title?: string;
+  maxReports?: number;
+}
+
+function generateHeader(title?: string): string[] {
+  return [
+    title || '# Test Reports Index',
     '',
     'Automated test reports from CI/CD pipeline.',
     ''
   ];
+}
 
-  const groupedByBranch = new Map<string, typeof reports>();
-
+function groupReportsByBranch(reports: ReportEntry[]): Map<string, ReportEntry[]> {
+  const grouped = new Map<string, ReportEntry[]>();
   for (const report of reports) {
-    if (!groupedByBranch.has(report.branch)) {
-      groupedByBranch.set(report.branch, []);
+    if (!grouped.has(report.branch)) {
+      grouped.set(report.branch, []);
     }
-    groupedByBranch.get(report.branch)!.push(report);
+    grouped.get(report.branch)!.push(report);
   }
+  return grouped;
+}
 
-  for (const [branch, branchReports] of groupedByBranch) {
-    lines.push(`## Branch: ${branch}`, '');
+function generateBranchSection(
+  branch: string,
+  branchReports: ReportEntry[],
+  options?: IndexOptions
+): string[] {
+  const lines: string[] = [`## Branch: ${branch}`, ''];
+  const sortedReports = sortAndLimitReports(branchReports, options?.maxReports);
 
-    const sortedReports = branchReports
-      .sort((a, b) =>
-        new Date(b.timestamp).getTime() -
-        new Date(a.timestamp).getTime()
-      )
-      .slice(0, options?.maxReports || 20);
-
-    for (const report of sortedReports) {
-      const statusIcon = report.status === 'success' ? '✅' : '❌';
-      lines.push(
-        `- [${report.runId}](${report.path}) - ` +
-        `${report.timestamp} ${statusIcon}`
-      );
-    }
-    lines.push('');
+  for (const report of sortedReports) {
+    const statusIcon = report.status === 'success' ? '✅' : '❌';
+    lines.push(
+      `- [${report.runId}](${report.path}) - ${report.timestamp} ${statusIcon}`
+    );
   }
+  lines.push('');
+  return lines;
+}
 
-  lines.push('---');
-  lines.push(`*Last updated: ${new Date().toISOString()}*`);
+function sortAndLimitReports(reports: ReportEntry[], maxReports = 20): ReportEntry[] {
+  return reports
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+    .slice(0, maxReports);
+}
 
-  return lines.join('\n');
+function generateFooter(): string[] {
+  return [
+    '---',
+    `*Last updated: ${new Date().toISOString()}*`
+  ];
 }
 
 /**
@@ -354,7 +383,7 @@ export function generateIndexPage(
  */
 export async function readCucumberReport(
   filePath: string
-): Promise<any[]> {
+): Promise<unknown[]> {
   const content = await fs.readFile(filePath, 'utf-8');
   return JSON.parse(content);
 }

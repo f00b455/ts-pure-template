@@ -282,12 +282,12 @@ export async function mergeReports(
   );
 
   if (cucumberReports.length > 0) {
-    const merged: any[] = [];
+    const merged: unknown[] = [];
 
     for (const report of cucumberReports) {
       try {
         const content = await fs.readFile(report.path, 'utf-8');
-        const data = JSON.parse(content);
+        const data = JSON.parse(content) as unknown;
         if (Array.isArray(data)) {
           merged.push(...data);
         }

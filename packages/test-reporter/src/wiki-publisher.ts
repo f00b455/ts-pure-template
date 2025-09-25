@@ -208,7 +208,7 @@ async function updateWikiIndex(
 async function updateBranchIndex(
   wikiPath: string,
   branch: string,
-  runId: string
+  _runId: string
 ): Promise<void> {
   const indexPath = path.join(wikiPath, '_index', `${branch}.md`);
   await fs.mkdir(path.dirname(indexPath), { recursive: true });
@@ -240,7 +240,7 @@ async function commitAndPush(
   dryRun?: boolean
 ): Promise<void> {
   if (dryRun) {
-    console.log('Dry run mode - skipping git operations');
+    console.error('Dry run mode - skipping git operations');
     return;
   }
 
