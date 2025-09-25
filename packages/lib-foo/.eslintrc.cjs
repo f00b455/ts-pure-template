@@ -19,7 +19,7 @@ module.exports = {
     es2022: true
   },
   rules: {
-    ...baseConfig.rules,
+    // Package-specific rules first, then spread base rules
     "no-unused-vars": ["error", { "args": "none" }],
     "no-var": "error",
     "no-console": "warn",
@@ -40,7 +40,10 @@ module.exports = {
     "functional/no-conditional-statements": "off",
     "functional/no-mixed-types": "off",
     "functional/functional-parameters": "off",
-    "functional/readonly-type": "off"
+    "functional/readonly-type": "off",
+
+    // Base rules last to ensure they take precedence
+    ...baseConfig.rules
   },
   overrides: baseConfig.overrides,
   ignorePatterns: ["dist/", "node_modules/", "*.js", "__tests__/**", "vitest.config.ts", "features/**/*"]

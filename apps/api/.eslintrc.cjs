@@ -15,11 +15,13 @@ module.exports = {
     es2022: true
   },
   rules: {
-    ...baseConfig.rules,
+    // Package-specific rules first, then spread base rules
     "no-unused-vars": "error",
     "no-var": "error",
     "eqeqeq": "error",
-    "curly": "error"
+    "curly": "error",
+    // Base rules last to ensure they take precedence
+    ...baseConfig.rules
   },
   overrides: baseConfig.overrides,
   ignorePatterns: ["dist/", "node_modules/", "*.js", "features/**", "vitest.config.ts", "cucumber.js"]

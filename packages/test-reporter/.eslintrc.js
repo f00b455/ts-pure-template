@@ -19,12 +19,14 @@ module.exports = {
     es2022: true
   },
   rules: {
-    ...baseConfig.rules,
+    // Package-specific rules first, then spread base rules
     '@typescript-eslint/explicit-module-boundary-types': 'error',
     '@typescript-eslint/no-explicit-any': 'error',
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     '@typescript-eslint/strict-boolean-expressions': 'off',
-    'no-console': ['warn', { allow: ['error'] }]
+    'no-console': ['warn', { allow: ['error'] }],
+    // Base rules last to ensure they take precedence
+    ...baseConfig.rules
   },
   overrides: baseConfig.overrides,
   ignorePatterns: ['dist', 'node_modules', '*.js', '*.cjs', '*.mjs', '**/*.test.ts', '**/features/**', 'vitest.config.ts', 'tsup.config.ts']
