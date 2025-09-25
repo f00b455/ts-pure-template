@@ -71,7 +71,9 @@ When('I call the fooProcess tool', function() {
   assert(world.input, 'Input is required');
   assert(world.prefix, 'Prefix is required');
 
-  const config: FooConfig = { prefix: world.prefix, suffix: world.suffix };
+  const config: FooConfig = world.suffix !== undefined
+    ? { prefix: world.prefix, suffix: world.suffix }
+    : { prefix: world.prefix };
   world.result = fooProcess(config)(world.input);
 });
 
@@ -88,7 +90,9 @@ When('I call the fooGreet tool', function() {
   assert(world.name, 'Name is required');
   assert(world.prefix, 'Prefix is required');
 
-  const config: FooConfig = { prefix: world.prefix, suffix: world.suffix };
+  const config: FooConfig = world.suffix !== undefined
+    ? { prefix: world.prefix, suffix: world.suffix }
+    : { prefix: world.prefix };
   world.result = fooGreet(config)(world.name);
 });
 

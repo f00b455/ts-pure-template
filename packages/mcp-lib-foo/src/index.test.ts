@@ -129,6 +129,7 @@ describe('MCP Server for lib-foo', () => {
         (call: any) => call[0] === ListToolsRequestSchema
       );
       expect(listToolsCall).toBeDefined();
+      if (!listToolsCall) throw new Error('Tools list handler not found');
 
       const toolsHandler = listToolsCall[1];
       const result = await toolsHandler();
@@ -176,6 +177,7 @@ describe('MCP Server for lib-foo', () => {
         (call: any) => call[0] === CallToolRequestSchema
       );
       expect(callHandlerCall).toBeDefined();
+      if (!callHandlerCall) throw new Error('Call tool handler not found');
       callHandler = callHandlerCall[1];
     });
 
