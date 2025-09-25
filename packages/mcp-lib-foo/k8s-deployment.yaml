@@ -1,0 +1,195 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mcp-services
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mcp-lib-foo-config
+  namespace: mcp-services
+data:
+  MCP_SERVER_NAME: "mcp-lib-foo"
+  MCP_SERVER_VERSION: "0.0.0"
+  MCP_TRANSPORT: "http"
+  MCP_PORT: "3000"
+  MCP_HOST: "0.0.0.0"
+  MCP_CORS: "true"
+  MCP_HEALTH_PATH: "/health"
+  NODE_ENV: "production"
+  LOG_LEVEL: "info"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcp-lib-foo
+  namespace: mcp-services
+  labels:
+    app: mcp-lib-foo
+    transport: http
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mcp-lib-foo
+  template:
+    metadata:
+      labels:
+        app: mcp-lib-foo
+        transport: http
+    spec:
+      containers:
+      - name: mcp-lib-foo
+        image: mcp-lib-foo:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+          name: http
+          protocol: TCP
+        envFrom:
+        - configMapRef:
+            name: mcp-lib-foo-config
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mcp-lib-foo
+  namespace: mcp-services
+spec:
+  selector:
+    app: mcp-lib-foo
+  ports:
+  - port: 80
+    targetPort: 3000
+    protocol: TCP
+    name: http
+  type: ClusterIP
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: mcp-lib-foo-hpa
+  namespace: mcp-services
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: mcp-lib-foo
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+
+---
+# WebSocket variant deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcp-lib-foo-websocket
+  namespace: mcp-services
+  labels:
+    app: mcp-lib-foo-websocket
+    transport: websocket
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mcp-lib-foo-websocket
+  template:
+    metadata:
+      labels:
+        app: mcp-lib-foo-websocket
+        transport: websocket
+    spec:
+      containers:
+      - name: mcp-lib-foo-websocket
+        image: mcp-lib-foo:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+          name: websocket
+          protocol: TCP
+        env:
+        - name: MCP_TRANSPORT
+          value: "websocket"
+        - name: MCP_PORT
+          value: "3000"
+        - name: MCP_HOST
+          value: "0.0.0.0"
+        - name: NODE_ENV
+          value: "production"
+        - name: MCP_SERVER_NAME
+          value: "mcp-lib-foo"
+        - name: MCP_SERVER_VERSION
+          value: "0.0.0"
+        - name: LOG_LEVEL
+          value: "info"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mcp-lib-foo-websocket
+  namespace: mcp-services
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"  # For AWS
+spec:
+  selector:
+    app: mcp-lib-foo-websocket
+  ports:
+  - port: 80
+    targetPort: 3000
+    protocol: TCP
+    name: websocket
+  type: LoadBalancer  # For WebSocket, we need persistent connections

@@ -12,6 +12,12 @@ This MCP server exposes the following tools from the lib-foo package:
 - **fooTransform**: Transform arrays of strings with custom transformers
 - **fooFilter**: Filter arrays based on predicates
 
+### Transport Modes
+
+- **STDIO Transport**: Traditional MCP transport using standard input/output (default)
+- **HTTP Transport**: RESTful HTTP endpoint for web applications
+- **WebSocket Transport**: Real-time bidirectional communication for persistent connections
+
 ## Installation
 
 ### Local Development
@@ -27,8 +33,14 @@ pnpm build
 pnpm test
 pnpm test:cucumber
 
-# Start the server
+# Start the server (default stdio transport)
 pnpm start
+
+# Start with HTTP transport
+MCP_TRANSPORT=http MCP_PORT=3000 pnpm start
+
+# Start with WebSocket transport
+MCP_TRANSPORT=websocket MCP_PORT=3001 pnpm start
 ```
 
 ### Docker Deployment
@@ -39,20 +51,44 @@ pnpm start
 # Build the Docker image
 docker build -t mcp-lib-foo:latest -f packages/mcp-lib-foo/Dockerfile .
 
-# Run the container
+# Run with HTTP transport
 docker run -it --rm \
   -e NODE_ENV=production \
-  -e MCP_SERVER_NAME=mcp-lib-foo \
+  -e MCP_TRANSPORT=http \
+  -e MCP_PORT=3000 \
+  -e MCP_CORS=true \
   -p 3010:3000 \
+  mcp-lib-foo:latest
+
+# Run with WebSocket transport
+docker run -it --rm \
+  -e NODE_ENV=production \
+  -e MCP_TRANSPORT=websocket \
+  -e MCP_PORT=3000 \
+  -p 3011:3000 \
+  mcp-lib-foo:latest
+
+# Run with STDIO transport (default)
+docker run -it --rm \
+  -e NODE_ENV=production \
   mcp-lib-foo:latest
 ```
 
 #### Using Docker Compose
 
 ```bash
-# Start the server
+# Start HTTP transport service (default)
 cd packages/mcp-lib-foo
-docker-compose up -d
+docker-compose up -d mcp-lib-foo-http
+
+# Start WebSocket transport service
+docker-compose --profile websocket up -d mcp-lib-foo-websocket
+
+# Start STDIO transport service
+docker-compose --profile stdio up -d mcp-lib-foo-stdio
+
+# Development mode with hot reload
+docker-compose --profile dev up mcp-lib-foo-dev
 
 # View logs
 docker-compose logs -f
@@ -64,18 +100,41 @@ docker-compose down
 docker-compose --profile test up mcp-lib-foo-test
 ```
 
+### Kubernetes Deployment
+
+```bash
+# Apply all resources
+kubectl apply -f packages/mcp-lib-foo/k8s-deployment.yaml
+
+# Scale deployment
+kubectl scale deployment mcp-lib-foo -n mcp-services --replicas=5
+
+# Check status
+kubectl get pods -n mcp-services
+kubectl logs -n mcp-services -l app=mcp-lib-foo
+```
+
 ## Configuration
 
 ### Environment Variables
 
-- `NODE_ENV`: Environment mode (development/production/test)
-- `MCP_SERVER_NAME`: Server identifier (default: mcp-lib-foo)
-- `MCP_SERVER_VERSION`: Server version (default: 0.0.0)
-- `LOG_LEVEL`: Logging level (info/debug/error)
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `NODE_ENV` | `production` | Environment mode (development/production/test) |
+| `MCP_SERVER_NAME` | `mcp-lib-foo` | Server identifier |
+| `MCP_SERVER_VERSION` | `0.0.0` | Server version |
+| `MCP_TRANSPORT` | `stdio` | Transport mode: `stdio`, `http`, or `websocket` |
+| `MCP_PORT` | `3000` | Port for HTTP/WebSocket transports |
+| `MCP_HOST` | `0.0.0.0` | Host to bind network transports |
+| `MCP_CORS` | `false` | Enable CORS for HTTP transport |
+| `MCP_HEALTH_PATH` | `/health` | Path for health check endpoint |
+| `LOG_LEVEL` | `info` | Logging level (info/debug/error) |
 
 ### Claude Code Integration
 
 To use this MCP server with Claude Code, add it to your MCP configuration:
+
+#### STDIO Transport (Default)
 
 ```json
 {
@@ -91,20 +150,94 @@ To use this MCP server with Claude Code, add it to your MCP configuration:
 }
 ```
 
-Or with Docker:
+#### HTTP Transport
+
+```json
+{
+  "mcpServers": {
+    "mcp-lib-foo": {
+      "command": "node",
+      "args": ["/path/to/mcp-lib-foo/dist/index.js"],
+      "env": {
+        "NODE_ENV": "production",
+        "MCP_TRANSPORT": "http",
+        "MCP_PORT": "3000",
+        "MCP_CORS": "true"
+      }
+    }
+  }
+}
+```
+
+#### Docker Integration
 
 ```json
 {
   "mcpServers": {
     "mcp-lib-foo": {
       "command": "docker",
-      "args": ["run", "-i", "--rm", "mcp-lib-foo:latest"],
+      "args": ["run", "-i", "--rm",
+               "-e", "MCP_TRANSPORT=stdio",
+               "mcp-lib-foo:latest"],
       "env": {
         "NODE_ENV": "production"
       }
     }
   }
 }
+```
+
+## Network Transport Usage
+
+### HTTP Transport API
+
+```javascript
+// Health check
+const health = await fetch('http://localhost:3000/health');
+const status = await health.json();
+// { status: 'healthy', transport: 'http', server: 'mcp-lib-foo', version: '0.0.0' }
+
+// MCP request
+const response = await fetch('http://localhost:3000/mcp', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-Session-ID': 'unique-session-id'
+  },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    method: 'tools/call',
+    params: {
+      name: 'fooProcess',
+      arguments: {
+        input: 'test',
+        prefix: 'foo'
+      }
+    },
+    id: 1
+  })
+});
+```
+
+### WebSocket Transport API
+
+```javascript
+// Connect via WebSocket
+const ws = new WebSocket('ws://localhost:3001');
+
+ws.on('open', () => {
+  // Send MCP request
+  ws.send(JSON.stringify({
+    jsonrpc: '2.0',
+    method: 'tools/list',
+    id: 1
+  }));
+});
+
+ws.on('message', (data) => {
+  const response = JSON.parse(data);
+  console.log('Received:', response);
+});
 ```
 
 ## API Documentation
@@ -222,15 +355,18 @@ Filter an array based on a predicate.
 ```
 packages/mcp-lib-foo/
 ├── src/
-│   ├── index.ts          # Main MCP server implementation
-│   └── index.test.ts     # Unit tests
-├── features/             # BDD feature files
+│   ├── index.ts                     # Main MCP server with transport support
+│   └── index.test.ts                # Unit tests
+├── features/                        # BDD feature files
 │   ├── mcp-tools.feature
 │   ├── mcp-server.feature
+│   ├── network-transport.feature   # Network transport scenarios
 │   └── step_definitions/
-│       └── mcp.steps.ts
-├── Dockerfile            # Multi-stage Docker build
-├── docker-compose.yml    # Local development setup
+│       ├── mcp.steps.ts
+│       └── network-transport.steps.ts
+├── Dockerfile                       # Multi-stage Docker build with transport modes
+├── docker-compose.yml               # Multi-service Docker setup
+├── k8s-deployment.yaml              # Kubernetes production deployment
 ├── package.json
 ├── tsconfig.json
 ├── tsup.config.ts
@@ -252,8 +388,11 @@ The package includes comprehensive testing:
 # TypeScript build
 pnpm build
 
-# Docker build
+# Docker build for network transport
 docker build -t mcp-lib-foo:latest -f Dockerfile ../..
+
+# Docker build for stdio transport
+docker build --target runner-stdio -t mcp-lib-foo:stdio -f Dockerfile ../..
 ```
 
 ## Troubleshooting
@@ -272,12 +411,30 @@ docker build -t mcp-lib-foo:latest -f Dockerfile ../..
 3. Ensure the correct path to the server executable
 4. Review server logs for error messages
 
+### Network Transport Issues
+
+1. Verify port is not already in use: `lsof -i :3000`
+2. Check firewall settings allow incoming connections
+3. For HTTP, test health endpoint: `curl http://localhost:3000/health`
+4. For WebSocket, use wscat or similar tool to test connection
+5. Enable debug logging: `LOG_LEVEL=debug`
+
 ### Docker Build Failures
 
 1. Ensure you're building from the repository root
 2. Check that all workspace dependencies are present
 3. Verify Docker daemon is running
 4. Clear Docker cache: `docker builder prune`
+
+## Security Considerations
+
+- Always run containers as non-root user (UID 1001)
+- Use read-only root filesystem when possible
+- Configure appropriate resource limits
+- Enable CORS only when necessary and configure allowed origins
+- Use TLS/SSL for production deployments
+- Implement authentication/authorization for production use
+- Regular security updates for dependencies
 
 ## License
 

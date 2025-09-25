@@ -1,4 +1,4 @@
-# Multi-stage Dockerfile for MCP Server
+# Multi-stage Dockerfile for MCP Server with configurable transport modes
 FROM node:20-alpine AS base
 RUN apk add --no-cache libc6-compat
 RUN corepack enable && corepack prepare pnpm@latest --activate
@@ -33,8 +33,8 @@ RUN pnpm build
 WORKDIR /app/packages/mcp-lib-foo
 RUN pnpm build
 
-# Production stage
-FROM node:20-alpine AS runner
+# Production stage for stdio transport (default)
+FROM node:20-alpine AS runner-stdio
 RUN apk add --no-cache libc6-compat
 RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
@@ -50,15 +50,51 @@ COPY --from=build --chown=mcp:mcp /app/node_modules ./node_modules
 
 USER mcp
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "process.exit(0)" || exit 1
-
-# Environment variables
+# Environment variables for stdio mode
 ENV NODE_ENV=production
 ENV MCP_SERVER_NAME=mcp-lib-foo
 ENV MCP_SERVER_VERSION=0.0.0
+ENV MCP_TRANSPORT=stdio
+
+# Start server in stdio mode
+CMD ["node", "dist/index.js"]
+
+# Production stage for network transport (HTTP/WebSocket)
+FROM node:20-alpine AS runner-network
+RUN apk add --no-cache libc6-compat curl
+RUN corepack enable && corepack prepare pnpm@latest --activate
+WORKDIR /app
+
+# Create non-root user
+RUN addgroup --system --gid 1001 mcp
+RUN adduser --system --uid 1001 mcp
+
+# Copy necessary files
+COPY --from=build --chown=mcp:mcp /app/packages/mcp-lib-foo/dist ./dist
+COPY --from=build --chown=mcp:mcp /app/packages/mcp-lib-foo/package.json ./package.json
+COPY --from=build --chown=mcp:mcp /app/node_modules ./node_modules
+
+USER mcp
+
+# Health check for network mode
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:${MCP_PORT:-3000}${MCP_HEALTH_PATH:-/health} || exit 1
+
+# Environment variables for network mode
+ENV NODE_ENV=production
+ENV MCP_SERVER_NAME=mcp-lib-foo
+ENV MCP_SERVER_VERSION=0.0.0
+ENV MCP_TRANSPORT=http
+ENV MCP_PORT=3000
+ENV MCP_HOST=0.0.0.0
+ENV MCP_CORS=true
+ENV MCP_HEALTH_PATH=/health
+
+# Expose port for network transports
+EXPOSE 3000
 
 # Start server
-EXPOSE 3000
 CMD ["node", "dist/index.js"]
+
+# Default to network stage for compatibility
+FROM runner-network AS runner

@@ -30,11 +30,15 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.1",
-    "@ts-template/lib-foo": "workspace:*"
+    "@ts-template/lib-foo": "workspace:*",
+    "ws": "^8.16.0"
   },
   "devDependencies": {
     "@cucumber/cucumber": "^10.9.0",
+    "@types/chai": "^4.3.11",
     "@types/node": "^20",
+    "@types/ws": "^8.5.10",
+    "chai": "^4.3.10",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "eslint": "^8.57.0",
