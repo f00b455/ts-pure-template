@@ -1,5 +1,5 @@
 module.exports = {
-  extends: ["../.eslintrc.js"],
+  extends: ["../.eslintrc.cjs"],
   rules: {
     "functional/no-let": "off",
     "functional/no-return-void": "off",
