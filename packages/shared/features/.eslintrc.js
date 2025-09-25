@@ -1,6 +1,6 @@
-{
-  "extends": ["../.eslintrc.json"],
-  "rules": {
+module.exports = {
+  extends: ["../.eslintrc.js"],
+  rules: {
     "functional/no-let": "off",
     "functional/no-return-void": "off",
     "functional/no-expression-statements": "off",
@@ -8,4 +8,4 @@
     "functional/immutable-data": "off",
     "functional/prefer-readonly-type": "off"
   }
-}
+};

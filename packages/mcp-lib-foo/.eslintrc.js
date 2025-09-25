@@ -1,0 +1,26 @@
+const baseConfig = require('../../eslint.base.js');
+
+module.exports = {
+  root: true,
+  parser: "@typescript-eslint/parser",
+  plugins: ["@typescript-eslint"],
+  extends: [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  parserOptions: {
+    ecmaVersion: 2022,
+    sourceType: "module",
+    project: "./tsconfig.json"
+  },
+  rules: {
+    ...baseConfig.rules,
+    "@typescript-eslint/explicit-module-boundary-types": "error",
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/strict-boolean-expressions": "off",
+    "no-console": ["warn", { "allow": ["error"] }]
+  },
+  overrides: baseConfig.overrides,
+  ignorePatterns: ["dist", "node_modules", "*.js", "*.cjs", "*.mjs"]
+};

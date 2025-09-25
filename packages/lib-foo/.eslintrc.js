@@ -1,22 +1,25 @@
-{
-  "parser": "@typescript-eslint/parser",
-  "plugins": ["functional"],
-  "extends": [
+const baseConfig = require('../../eslint.base.js');
+
+module.exports = {
+  parser: "@typescript-eslint/parser",
+  plugins: ["functional"],
+  extends: [
     "eslint:recommended",
     "plugin:functional/external-vanilla-recommended",
     "plugin:functional/recommended",
     "plugin:functional/stylistic"
   ],
-  "parserOptions": {
-    "ecmaVersion": 2022,
-    "sourceType": "module",
-    "project": ["./tsconfig.json"]
+  parserOptions: {
+    ecmaVersion: 2022,
+    sourceType: "module",
+    project: ["./tsconfig.json"]
   },
-  "env": {
-    "node": true,
-    "es2022": true
+  env: {
+    node: true,
+    es2022: true
   },
-  "rules": {
+  rules: {
+    ...baseConfig.rules,
     "no-unused-vars": ["error", { "args": "none" }],
     "no-var": "error",
     "no-console": "warn",
@@ -39,5 +42,6 @@
     "functional/functional-parameters": "off",
     "functional/readonly-type": "off"
   },
-  "ignorePatterns": ["dist/", "node_modules/", "*.js", "__tests__/**", "vitest.config.ts", "features/**/*"]
-}
+  overrides: baseConfig.overrides,
+  ignorePatterns: ["dist/", "node_modules/", "*.js", "__tests__/**", "vitest.config.ts", "features/**/*"]
+};
