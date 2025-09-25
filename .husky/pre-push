@@ -2,7 +2,7 @@ echo "🚀 Running pre-push validation..."
 echo "📍 This ensures your changes won't break CI/CD"
 echo ""
 
-# Run the full pipeline validation
+# Run the full pipeline validation (lint + type-check + build + test + cucumber)
 echo "🔍 Running full pipeline validation..."
 pnpm validate || {
   echo ""

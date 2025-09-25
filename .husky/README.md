@@ -6,7 +6,8 @@ This directory contains git hooks managed by Husky.
 
 The `pre-push` hook automatically runs the full pipeline validation before each push:
 
-- ✅ **Lint**: Code style and TypeScript checks
+- ✅ **Lint**: Code style and ESLint checks
+- ✅ **Type-check**: TypeScript type validation
 - ✅ **Build**: Compilation verification
 - ✅ **Tests**: Unit tests with proper mocking
 - ✅ **BDD**: Cucumber behavior-driven development tests
@@ -22,7 +23,7 @@ The `pre-push` hook automatically runs the full pipeline validation before each 
 You can also run validation manually:
 
 ```bash
-# Quick validation (lint + tests)
+# Quick validation (lint + type-check + tests)
 pnpm validate:quick
 
 # Full validation (same as pre-push hook)

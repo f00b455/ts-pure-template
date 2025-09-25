@@ -18,8 +18,8 @@
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "changeset publish",
-    "validate": "pnpm lint && pnpm build && pnpm test:run && pnpm test:cucumber",
-    "validate:quick": "pnpm lint && pnpm test:run",
+    "validate": "pnpm lint && pnpm type-check && pnpm build && pnpm test:run && pnpm test:cucumber",
+    "validate:quick": "pnpm lint && pnpm type-check && pnpm test:run",
     "prepush": "pnpm validate",
     "prepare": "husky"
   },

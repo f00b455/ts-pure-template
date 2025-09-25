@@ -102,11 +102,11 @@ ts-pure-template/
 ### Development Workflow:
 
 **AUTOMATED PRE-PUSH VALIDATION**: This repo uses Husky to automatically validate code before each push.
-The pre-push hook runs: `pnpm validate` (lint + build + test:run + test:cucumber)
+The pre-push hook runs: `pnpm validate` (lint + type-check + build + test:run + test:cucumber)
 
 **Development Commands**:
-- `pnpm validate:quick` - Quick validation (lint + tests only) - **Use during development**
-- `pnpm validate` - Full pipeline validation (lint + build + tests + cucumber) - **Runs automatically on push**
+- `pnpm validate:quick` - Quick validation (lint + type-check + tests) - **Use during development**
+- `pnpm validate` - Full pipeline validation (lint + type-check + build + tests + cucumber) - **Runs automatically on push**
 
 **Efficient Dev Cycle**:
 1. Code freely and commit often (no pre-commit validation)
