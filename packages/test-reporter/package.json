@@ -16,6 +16,9 @@
     "lint": "eslint . --max-warnings 0",
     "type-check": "tsc --noEmit"
   },
+  "dependencies": {
+    "glob": "^10.3.10"
+  },
   "devDependencies": {
     "@cucumber/cucumber": "^10.3.1",
     "@ts-template/cucumber-shared": "workspace:*",

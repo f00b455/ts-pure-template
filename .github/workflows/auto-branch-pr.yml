@@ -48,7 +48,8 @@ jobs:
         run: |
           # Check if PR already exists for this branch OR this issue
           PR_EXISTS_FOR_BRANCH=$(gh pr list --state open --head "${{ steps.branch.outputs.name }}" --json number --jq length)
-          PR_EXISTS_FOR_ISSUE=$(gh pr list --state open --search "in:title #${{ github.event.issue.number }}" --json number --jq length)
+          # More precise search: look for exact issue reference in title or body
+          PR_EXISTS_FOR_ISSUE=$(gh pr list --state open --search "#${{ github.event.issue.number }}" --json number,title,body --jq '[.[] | select((.title // "") | contains("(#${{ github.event.issue.number }})")) or select((.body // "") | contains("Closes #${{ github.event.issue.number }}") or contains("Fixes #${{ github.event.issue.number }}") or contains("Addresses #${{ github.event.issue.number }}"))] | length')
 
           if [ "$PR_EXISTS_FOR_BRANCH" -gt 0 ] || [ "$PR_EXISTS_FOR_ISSUE" -gt 0 ]; then
             echo "exists=true" >> $GITHUB_OUTPUT
