@@ -42,7 +42,7 @@ export function generateWikiIndex(reports: TestReport[], config: Partial<WikiCon
     if (!branchGroups[report.branch]) {
       branchGroups[report.branch] = [];
     }
-    branchGroups[report.branch].push(report);
+    branchGroups[report.branch]?.push(report);
   }
 
   // Apply retention policy per branch
@@ -172,7 +172,7 @@ export function getReportsToRetain(
 export function parseReportPath(path: string): { branch: string; runId: string } | null {
   // Expected format: reports/{branch}/{runId}/
   const match = path.match(/reports\/([^/]+)\/([^/]+)\/?/);
-  if (match) {
+  if (match && match[1] && match[2]) {
     return {
       branch: match[1],
       runId: match[2]
