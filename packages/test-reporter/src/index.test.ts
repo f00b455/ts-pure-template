@@ -303,8 +303,10 @@ describe('Test Reporter Module', () => {
       // Test generateBranchSection
       expect(markdown).toContain('### Branch: main');
       expect(markdown).toContain('### Branch: feature-x');
-      expect(markdown).toMatch(/#### run-2 \(main\)/);
-      expect(markdown).toMatch(/#### run-3 \(feature-x\)/);
+      // Check that runs are listed under their branch sections
+      expect(markdown).toContain('- [run-1](reports/main/run-1/index.html)');
+      expect(markdown).toContain('- [run-2](reports/main/run-2/index.html)');
+      expect(markdown).toContain('- [run-3](reports/feature-x/run-3/index.html)');
     });
   });
 
