@@ -4,6 +4,9 @@
   "description": "Test reporter for publishing test results to GitHub Wiki",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "bin": {
+    "test-reporter": "./dist/cli.js"
+  },
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
@@ -12,6 +15,9 @@
     "test:cucumber": "node --import tsx ./node_modules/@cucumber/cucumber/bin/cucumber.js --config cucumber.cjs",
     "lint": "eslint . --max-warnings 0",
     "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "glob": "^10.3.10"
   },
   "devDependencies": {
     "@cucumber/cucumber": "^10.3.1",
