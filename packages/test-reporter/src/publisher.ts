@@ -36,17 +36,6 @@ async function writeFile(
   await fs.writeFile(filePath, content, 'utf-8');
 }
 
-async function copyFile(
-  source: string,
-  dest: string,
-  dryRun?: boolean
-): Promise<void> {
-  if (dryRun) {
-    console.log(`[DRY RUN] Would copy: ${source} -> ${dest}`);
-    return;
-  }
-  await fs.copyFile(source, dest);
-}
 
 function executeGitCommand(
   command: string,

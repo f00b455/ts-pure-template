@@ -113,6 +113,25 @@ function parseArgs(args: string[]): CliOptions {
   return options;
 }
 
+/**
+ * Validate command line options
+ */
+function validateOptions(options: CliOptions): void {
+  if (options.command === 'publish') {
+    if (!options.wikiPath) {
+      throw new Error('Wiki path is required for publish command');
+    }
+    if (!options.branch) {
+      throw new Error('Branch is required for publish command');
+    }
+    if (!options.runId) {
+      throw new Error('Run ID is required for publish command');
+    }
+    if (!options.commitSha) {
+      throw new Error('Commit SHA is required for publish command');
+    }
+  }
+}
 
 /**
  * Print help message
@@ -371,6 +390,7 @@ if (require.main === module) {
 
     process.exit(1);
   });
+}
 
 export { main, parseArgs, validateOptions };
 
