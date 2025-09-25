@@ -1,0 +1,263 @@
+name: Publish Test Reports to Wiki
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+  push:
+    branches:
+      - main
+      - release/*
+
+permissions:
+  contents: write   # für Wiki push
+  actions: read
+
+jobs:
+  publish-reports:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download test artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: reports
+          pattern: test-reports-*
+          merge-multiple: true
+
+      - name: Clone Wiki
+        run: |
+          git config --global user.email "bot@users.noreply.github.com"
+          git config --global user.name "ci-bot"
+          git clone "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.wiki.git" wiki
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Convert and publish reports
+        run: |
+          BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
+          TARGET="wiki/reports/${BRANCH}/${GITHUB_RUN_ID}"
+          mkdir -p "$TARGET"
+
+          # Convert JUnit XML to HTML if exists
+          if [ -f "reports/junit.xml" ]; then
+            echo "Converting JUnit report..."
+            node -e "
+              const { JUnitConverter } = require('./packages/wiki-reports/dist/converters/junit.js');
+              const fs = require('fs');
+              const converter = new JUnitConverter();
+              const xml = fs.readFileSync('reports/junit.xml', 'utf8');
+              const html = converter.convert(xml);
+              fs.writeFileSync('$TARGET/junit.html', html);
+            "
+          fi
+
+          # Convert Jest JSON to HTML if exists
+          if [ -f "reports/jest-results.json" ]; then
+            echo "Converting Jest report..."
+            node -e "
+              const { JestConverter } = require('./packages/wiki-reports/dist/converters/jest.js');
+              const fs = require('fs');
+              const converter = new JestConverter();
+              const json = fs.readFileSync('reports/jest-results.json', 'utf8');
+              const html = converter.convert(json);
+              fs.writeFileSync('$TARGET/jest.html', html);
+            "
+          fi
+
+          # Convert Vitest JSON to HTML if exists
+          if [ -f "reports/vitest-results.json" ]; then
+            echo "Converting Vitest report..."
+            node -e "
+              const { VitestConverter } = require('./packages/wiki-reports/dist/converters/vitest.js');
+              const fs = require('fs');
+              const converter = new VitestConverter();
+              const json = fs.readFileSync('reports/vitest-results.json', 'utf8');
+              const html = converter.convert(json);
+              fs.writeFileSync('$TARGET/vitest.html', html);
+            "
+          fi
+
+          # Convert Cucumber JSON to HTML if exists
+          if [ -f "reports/cucumber-report.json" ]; then
+            echo "Converting Cucumber report..."
+            node -e "
+              const { CucumberConverter } = require('./packages/wiki-reports/dist/converters/cucumber.js');
+              const fs = require('fs');
+              const converter = new CucumberConverter();
+              const json = fs.readFileSync('reports/cucumber-report.json', 'utf8');
+              const html = converter.convert(json);
+              fs.writeFileSync('$TARGET/cucumber.html', html);
+            "
+          fi
+
+          # Copy any existing HTML reports
+          find reports -name "*.html" -exec cp {} "$TARGET/" \; 2>/dev/null || true
+
+          # Create index.html
+          cat > "$TARGET/index.html" << 'EOF'
+          <!DOCTYPE html>
+          <html lang="de">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Test Reports - Run ${GITHUB_RUN_ID}</title>
+              <style>
+                  body {
+                      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                      line-height: 1.6;
+                      margin: 40px auto;
+                      max-width: 1200px;
+                      padding: 0 20px;
+                      background: #f5f5f5;
+                  }
+                  .header {
+                      background: white;
+                      border-radius: 8px;
+                      padding: 30px;
+                      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                      margin-bottom: 30px;
+                  }
+                  h1 {
+                      color: #333;
+                      border-bottom: 2px solid #007acc;
+                      padding-bottom: 10px;
+                  }
+                  .reports {
+                      display: grid;
+                      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                      gap: 20px;
+                  }
+                  .report-card {
+                      background: white;
+                      border-radius: 8px;
+                      padding: 20px;
+                      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                      transition: transform 0.2s;
+                  }
+                  .report-card:hover {
+                      transform: translateY(-2px);
+                      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+                  }
+                  .report-link {
+                      color: #007acc;
+                      text-decoration: none;
+                      font-weight: 500;
+                      font-size: 1.1em;
+                  }
+                  .report-link:hover {
+                      text-decoration: underline;
+                  }
+                  .meta {
+                      margin-top: 20px;
+                      padding: 15px;
+                      background: #f0f8ff;
+                      border-radius: 4px;
+                  }
+                  .meta-item {
+                      margin: 5px 0;
+                  }
+              </style>
+          </head>
+          <body>
+              <div class="header">
+                  <h1>Test Reports</h1>
+                  <div class="meta">
+                      <div class="meta-item"><strong>Branch:</strong> ${BRANCH}</div>
+                      <div class="meta-item"><strong>Run ID:</strong> ${GITHUB_RUN_ID}</div>
+                      <div class="meta-item"><strong>Commit:</strong> ${GITHUB_SHA}</div>
+                      <div class="meta-item"><strong>Zeit:</strong> $(date -u +"%Y-%m-%dT%H:%M:%SZ")</div>
+                  </div>
+              </div>
+              <div class="reports">
+          EOF
+
+          # Add links to all HTML files
+          for report in "$TARGET"/*.html; do
+            if [ -f "$report" ] && [ "$(basename "$report")" != "index.html" ]; then
+              name=$(basename "$report" .html)
+              echo "<div class='report-card'><a href='$(basename "$report")' class='report-link'>$name Report</a></div>" >> "$TARGET/index.html"
+            fi
+          done
+
+          echo "</div></body></html>" >> "$TARGET/index.html"
+
+          # Fallback if no reports found
+          if [ ! -f "$TARGET/junit.html" ] && [ ! -f "$TARGET/jest.html" ] && [ ! -f "$TARGET/vitest.html" ] && [ ! -f "$TARGET/cucumber.html" ]; then
+            echo "<p>Keine Testberichte verfügbar für diesen Lauf.</p>" >> "$TARGET/index.html"
+          fi
+
+      - name: Update Wiki index
+        run: |
+          BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
+          DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+          # Create or update Home.md
+          cat > wiki/Home.md << EOF
+          # Test Reports
+
+          ## Letzter Lauf (${GITHUB_RUN_ID})
+
+          - **Branch:** ${BRANCH}
+          - **Run:** [${GITHUB_RUN_ID}](reports/${BRANCH}/${GITHUB_RUN_ID}/index.html)
+          - **Commit:** ${GITHUB_SHA}
+          - **Zeit:** ${DATE} (UTC)
+
+          ### Historie
+
+          EOF
+
+          # Add links to all existing runs (sorted by newest first)
+          if [ -d "wiki/reports" ]; then
+            find wiki/reports -type d -mindepth 2 -maxdepth 2 | sort -r | head -n 50 | while read d; do
+              RUNID=$(basename "$d")
+              BR=$(basename $(dirname "$d"))
+              echo "- $BR / $RUNID → [Report](reports/$BR/$RUNID/index.html)" >> wiki/Home.md
+            done
+          fi
+
+      - name: Apply retention policy
+        run: |
+          # Keep only last 20 runs per branch
+          if [ -d "wiki/reports" ]; then
+            for BR in $(ls wiki/reports); do
+              if [ -d "wiki/reports/$BR" ]; then
+                KEEP=20
+                ls -1dt wiki/reports/$BR/* 2>/dev/null | tail -n +$((KEEP+1)) | xargs -r rm -rf
+              fi
+            done
+          fi
+
+      - name: Commit and push to Wiki
+        run: |
+          cd wiki
+          git add .
+          git commit -m "Publish reports: ${GITHUB_REF_NAME} run ${GITHUB_RUN_ID}" || echo "No changes to commit"
+          git push || echo "Push failed - Wiki might not be enabled"
+        continue-on-error: true  # Don't fail the workflow if Wiki push fails
+
+      - name: Summary
+        run: |
+          echo "### Test Reports Published to Wiki" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Branch: ${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}" >> $GITHUB_STEP_SUMMARY
+          echo "- Run ID: ${GITHUB_RUN_ID}" >> $GITHUB_STEP_SUMMARY
+          echo "- Wiki: [View Reports](https://github.com/${GITHUB_REPOSITORY}/wiki)" >> $GITHUB_STEP_SUMMARY

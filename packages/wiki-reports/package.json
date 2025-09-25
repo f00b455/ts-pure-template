@@ -1,0 +1,42 @@
+{
+  "name": "@ts-template/wiki-reports",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Test report publishing to GitHub Wiki",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:cucumber": "cucumber-js",
+    "lint": "eslint src --ext .ts,.tsx",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ts-template/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@cucumber/cucumber": "^10.3.1",
+    "@ts-template/cucumber-shared": "workspace:*",
+    "@types/node": "^20.11.10",
+    "eslint": "^8.56.0",
+    "fast-xml-parser": "^4.5.2",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.2"
+  }
+}

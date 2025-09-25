@@ -1,0 +1,46 @@
+# Issue: #5
+# URL: https://github.com/f00b455/ts-pure-template/issues/5
+@pkg(wiki-reports) @issue-5
+Feature: Testberichte in GitHub Wiki veröffentlichen
+  Um Testergebnisse transparent zu machen,
+  möchte ich, dass die CI/CD-Pipeline Reports nach jedem Lauf in die Wiki pusht.
+
+  Background:
+    Given das Repository hat die GitHub Wiki aktiviert
+    And die Pipeline erzeugt Testberichte als Artefakte
+
+  @happy-path
+  Scenario: Erfolgreiche Veröffentlichung eines Laufes
+    Given ein erfolgreicher Pipeline-Lauf auf Branch "main" mit Commit-SHA "abc123"
+    When die Publish-Stage ausgeführt wird
+    Then werden HTML-Reports unter "wiki/reports/main/run-123/" abgelegt
+    And die Wiki-Startseite verlinkt "Letzter Lauf: run-123 (abc123)"
+    And die Seite ist öffentlich innerhalb des Projekts einsehbar
+
+  @multiple-branches
+  Scenario: Getrennte Verzeichnisse pro Branch
+    Given ein Lauf auf Branch "feature-x"
+    When die Publish-Stage ausgeführt wird
+    Then werden Reports unter "wiki/reports/feature-x/run-456/" gespeichert
+    And ein Branch-Index existiert und ist verlinkt
+
+  @index
+  Scenario: Automatische Index-Aktualisierung
+    Given ein neuer Report wurde abgelegt
+    When das Index-Skript läuft
+    Then werden die letzten 20 Läufe pro Branch gelistet
+    And die Läufe sind absteigend sortiert nach Zeit
+
+  @fallback
+  Scenario: Kein Report vorhanden
+    Given die Tests erzeugen keine Artefakte
+    When die Publish-Stage ausgeführt wird
+    Then wird ein Eintrag "Keine Reports verfügbar" mit Zeitstempel erzeugt
+    And die Pipeline schlägt nicht allein wegen des Wiki-Schritts fehl
+
+  @retention
+  Scenario: Aufräumen alter Reports
+    Given mehr als 20 Läufe existieren für Branch "main"
+    When die Publish-Stage läuft
+    Then werden ältere Verzeichnisse entfernt
+    And nur die letzten 20 Läufe bleiben erhalten
