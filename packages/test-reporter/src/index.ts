@@ -26,30 +26,45 @@ const DEFAULT_CONFIG: WikiConfig = {
 };
 
 /**
- * Pure function to generate Wiki index from test reports
+ * Helper function to group reports by branch
  */
-export function generateWikiIndex(reports: TestReport[], config: Partial<WikiConfig> = {}): WikiIndex {
-  const finalConfig = { ...DEFAULT_CONFIG, ...config };
-
-  // Sort reports by timestamp descending
-  const sortedReports = [...reports].sort((a, b) =>
-    new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-  );
-
-  // Group by branch
+function groupReportsByBranch(reports: TestReport[]): Record<string, TestReport[]> {
   const branchGroups: Record<string, TestReport[]> = {};
-  for (const report of sortedReports) {
+  for (const report of reports) {
     if (!branchGroups[report.branch]) {
       branchGroups[report.branch] = [];
     }
     branchGroups[report.branch]?.push(report);
   }
+  return branchGroups;
+}
 
-  // Apply retention policy per branch
+/**
+ * Helper function to apply retention policy to branches
+ */
+function applyBranchRetention(
+  branchGroups: Record<string, TestReport[]>,
+  maxReports: number
+): Record<string, TestReport[]> {
   const prunedBranches: Record<string, TestReport[]> = {};
   for (const [branch, branchReports] of Object.entries(branchGroups)) {
-    prunedBranches[branch] = branchReports.slice(0, finalConfig.maxReportsPerBranch);
+    prunedBranches[branch] = branchReports.slice(0, maxReports);
   }
+  return prunedBranches;
+}
+
+/**
+ * Pure function to generate Wiki index from test reports
+ */
+export function generateWikiIndex(reports: TestReport[], config: Partial<WikiConfig> = {}): WikiIndex {
+  const finalConfig = { ...DEFAULT_CONFIG, ...config };
+
+  const sortedReports = [...reports].sort((a, b) =>
+    new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+  );
+
+  const branchGroups = groupReportsByBranch(sortedReports);
+  const prunedBranches = applyBranchRetention(branchGroups, finalConfig.maxReportsPerBranch);
 
   return {
     lastRun: sortedReports[0] || null,
@@ -59,51 +74,63 @@ export function generateWikiIndex(reports: TestReport[], config: Partial<WikiCon
 }
 
 /**
+ * Generate markdown section for latest run
+ */
+function generateLatestRunSection(run: TestReport | null, timezone?: string): string[] {
+  const lines: string[] = [];
+  if (run) {
+    lines.push(`## Latest Run (${run.runId})`, '');
+    lines.push(`- **Branch:** ${run.branch}`);
+    lines.push(`- **Run:** [${run.runId}](${run.reportPath})`);
+    lines.push(`- **Commit:** ${run.commitSha}`);
+    lines.push(`- **Time:** ${formatTimestamp(run.timestamp, timezone)}`);
+    lines.push(`- **Status:** ${run.status}`, '');
+  } else {
+    lines.push('## No Reports Available', '');
+    lines.push('No test reports have been published yet.', '');
+  }
+  return lines;
+}
+
+/**
+ * Generate markdown section for recent runs
+ */
+function generateRecentRunsSection(runs: TestReport[]): string[] {
+  if (runs.length === 0) return [];
+  const lines: string[] = ['### Recent Runs', ''];
+  for (const run of runs) {
+    lines.push(`- ${run.branch} / ${run.runId} → [Report](${run.reportPath})`);
+  }
+  lines.push('');
+  return lines;
+}
+
+/**
+ * Generate markdown section for a single branch
+ */
+function generateBranchSection(branch: string, runs: TestReport[], timezone?: string): string[] {
+  if (runs.length === 0) return [];
+  const lines: string[] = [`### Branch: ${branch}`, ''];
+  for (const run of runs) {
+    const time = formatTimestamp(run.timestamp, timezone);
+    lines.push(`- [${run.runId}](${run.reportPath}) - ${time} (${run.status})`);
+  }
+  lines.push('');
+  return lines;
+}
+
+/**
  * Pure function to generate Markdown for Wiki home page
  */
 export function generateWikiMarkdown(index: WikiIndex, config: Partial<WikiConfig> = {}): string {
   const finalConfig = { ...DEFAULT_CONFIG, ...config };
-  const lines: string[] = [];
+  const lines: string[] = ['# Test Reports', ''];
 
-  lines.push('# Test Reports');
-  lines.push('');
+  lines.push(...generateLatestRunSection(index.lastRun, finalConfig.timezone));
+  lines.push(...generateRecentRunsSection(index.recentRuns));
 
-  if (index.lastRun) {
-    lines.push(`## Latest Run (${index.lastRun.runId})`);
-    lines.push('');
-    lines.push(`- **Branch:** ${index.lastRun.branch}`);
-    lines.push(`- **Run:** [${index.lastRun.runId}](${index.lastRun.reportPath})`);
-    lines.push(`- **Commit:** ${index.lastRun.commitSha}`);
-    lines.push(`- **Time:** ${formatTimestamp(index.lastRun.timestamp, finalConfig.timezone)}`);
-    lines.push(`- **Status:** ${index.lastRun.status}`);
-    lines.push('');
-  } else {
-    lines.push('## No Reports Available');
-    lines.push('');
-    lines.push('No test reports have been published yet.');
-    lines.push('');
-  }
-
-  if (index.recentRuns.length > 0) {
-    lines.push('### Recent Runs');
-    lines.push('');
-    for (const run of index.recentRuns) {
-      lines.push(`- ${run.branch} / ${run.runId} → [Report](${run.reportPath})`);
-    }
-    lines.push('');
-  }
-
-  // Branch-specific sections
   for (const [branch, runs] of Object.entries(index.branches)) {
-    if (runs.length > 0) {
-      lines.push(`### Branch: ${branch}`);
-      lines.push('');
-      for (const run of runs) {
-        const time = formatTimestamp(run.timestamp, finalConfig.timezone);
-        lines.push(`- [${run.runId}](${run.reportPath}) - ${time} (${run.status})`);
-      }
-      lines.push('');
-    }
+    lines.push(...generateBranchSection(branch, runs, finalConfig.timezone));
   }
 
   return lines.join('\n');
@@ -129,41 +156,51 @@ export function formatTimestamp(timestamp: string, timezone = 'UTC'): string {
 }
 
 /**
+ * Helper to group reports by branch using Map
+ */
+function groupReportsToMap(reports: TestReport[]): Map<string, TestReport[]> {
+  const branches = new Map<string, TestReport[]>();
+  for (const report of reports) {
+    if (!branches.has(report.branch)) {
+      branches.set(report.branch, []);
+    }
+    branches.get(report.branch)!.push(report);
+  }
+  return branches;
+}
+
+/**
+ * Helper to categorize reports based on retention policy
+ */
+function categorizeReports(
+  branches: Map<string, TestReport[]>,
+  maxPerBranch: number
+): { retain: TestReport[]; remove: TestReport[] } {
+  const retain: TestReport[] = [];
+  const remove: TestReport[] = [];
+
+  for (const [, branchReports] of branches) {
+    branchReports.forEach((report, index) => {
+      (index < maxPerBranch ? retain : remove).push(report);
+    });
+  }
+
+  return { retain, remove };
+}
+
+/**
  * Pure function to determine reports to retain
  */
 export function getReportsToRetain(
   reports: TestReport[],
   maxPerBranch: number
 ): { retain: TestReport[]; remove: TestReport[] } {
-  // Sort by timestamp descending
   const sorted = [...reports].sort((a, b) =>
     new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
   );
 
-  // Group by branch
-  const branches = new Map<string, TestReport[]>();
-  for (const report of sorted) {
-    if (!branches.has(report.branch)) {
-      branches.set(report.branch, []);
-    }
-    branches.get(report.branch)!.push(report);
-  }
-
-  const retain: TestReport[] = [];
-  const remove: TestReport[] = [];
-
-  // Apply retention policy per branch
-  for (const [, branchReports] of branches) {
-    branchReports.forEach((report, index) => {
-      if (index < maxPerBranch) {
-        retain.push(report);
-      } else {
-        remove.push(report);
-      }
-    });
-  }
-
-  return { retain, remove };
+  const branches = groupReportsToMap(sorted);
+  return categorizeReports(branches, maxPerBranch);
 }
 
 /**

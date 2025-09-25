@@ -10,8 +10,46 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Pure Functions**: Prefer functions without side effects when possible
 - **Explicit Types**: Use TypeScript's type system fully - avoid `any`
 - **Descriptive Naming**: Use clear, searchable names for variables and functions
-- **Small Functions**: Keep functions focused and under 20 lines when possible
+- **Small Functions**: Keep functions focused and under 20 lines when possible (enforced by ESLint)
 - **No Comments for What**: Code should be self-documenting; comments explain why, not what
+
+### ESLint Clean Code Enforcement:
+
+The codebase uses ESLint rules to automatically enforce Clean Code principles:
+
+**Function Length Limits:**
+- **Regular code**: 20 lines max per function (enforces Single Responsibility)
+- **Test files**: 50 lines max (tests need more setup/assertions)
+- **Rationale**: Smaller functions are easier to test, understand, and maintain
+
+**File Length Limits:**
+- **Regular files**: 300 lines max (promotes modular design)
+- **Test files**: 500 lines max (test suites can be larger)
+- **Rationale**: Prevents monolithic files that are hard to navigate
+
+**Complexity Limits:**
+- **Cyclomatic complexity**: 10 max (number of code paths)
+- **Nesting depth**: 3 levels max (encourages early returns)
+- **Parameters**: 4 max per function (use objects for complex data)
+- **Statements**: 15 max per function (complements line limit)
+
+**Phase-Based Migration:**
+Set `ESLINT_CLEAN_CODE_PHASE` environment variable:
+- **Phase 1** (default): `warn` - Assessment phase to identify violations
+- **Phase 2**: `warn` - Progressive refactoring with CI stability
+- **Phase 3**: `error` - Full enforcement, violations break the build
+
+To assess current violations:
+```bash
+# Run with default Phase 1 (warnings)
+pnpm lint
+
+# Generate detailed report
+pnpm lint:report
+
+# Run with Phase 3 enforcement
+ESLINT_CLEAN_CODE_PHASE=3 pnpm lint
+```
 
 ### Pure Function Principles:
 
