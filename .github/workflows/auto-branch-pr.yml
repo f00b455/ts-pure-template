@@ -43,17 +43,18 @@ jobs:
           fi
 
       - name: Check if PR already exists
-        if: steps.check-branch.outputs.exists == 'false'
         id: check-pr
         run: |
-          # Check if PR already exists for this issue
-          PR_EXISTS=$(gh pr list --state open --search "in:title #${{ github.event.issue.number }}" --json number --jq length)
-          if [ "$PR_EXISTS" -gt 0 ]; then
+          # Check if PR already exists for this branch OR this issue
+          PR_EXISTS_FOR_BRANCH=$(gh pr list --state open --head "${{ steps.branch.outputs.name }}" --json number --jq length)
+          PR_EXISTS_FOR_ISSUE=$(gh pr list --state open --search "in:title #${{ github.event.issue.number }}" --json number --jq length)
+
+          if [ "$PR_EXISTS_FOR_BRANCH" -gt 0 ] || [ "$PR_EXISTS_FOR_ISSUE" -gt 0 ]; then
             echo "exists=true" >> $GITHUB_OUTPUT
-            echo "🔍 PR already exists for issue #${{ github.event.issue.number }}"
+            echo "🔍 PR already exists for branch ${{ steps.branch.outputs.name }} or issue #${{ github.event.issue.number }}"
           else
             echo "exists=false" >> $GITHUB_OUTPUT
-            echo "✨ No PR exists yet for issue #${{ github.event.issue.number }}"
+            echo "✨ No PR exists yet for branch ${{ steps.branch.outputs.name }} or issue #${{ github.event.issue.number }}"
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -106,12 +107,55 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create Pull Request
+      - name: Create Pull Request (New Branch)
         if: steps.check-branch.outputs.exists == 'false' && steps.check-pr.outputs.exists == 'false'
-        id: create-pr
+        id: create-pr-new
         run: |
-          echo "Creating pull request..."
+          echo "Creating pull request for new branch..."
           gh pr create \
+            --title "WIP: ${{ github.event.issue.title }} (#${{ github.event.issue.number }})" \
+            --body "## 🎯 Addresses #${{ github.event.issue.number }}
+
+          ### Description
+          ${{ github.event.issue.body }}
+
+          ### Checklist
+          - [ ] Implementation complete
+          - [ ] Tests added/updated
+          - [ ] Documentation updated
+          - [ ] Code review completed
+          - [ ] CI/CD passing
+
+          ### Type of Change
+          - [ ] 🐛 Bug fix
+          - [ ] ✨ New feature
+          - [ ] 💔 Breaking change
+          - [ ] 📝 Documentation
+          - [ ] ♻️ Refactoring
+          - [ ] 🎨 Style/UI
+
+          ---
+          Closes #${{ github.event.issue.number }}
+
+          ### Auto-close behavior
+          - ✅ Issue will auto-close when PR is merged
+          - ✅ Branch will auto-delete after merge" \
+            --draft
+
+          # Try to add labels after PR creation (non-blocking)
+          echo "Attempting to add labels to PR..."
+          gh pr edit --add-label "work-in-progress" || echo "Could not add work-in-progress label"
+          gh pr edit --add-label "issue-${{ github.event.issue.number }}" || echo "Could not add issue-${{ github.event.issue.number }} label"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Pull Request (Existing Branch)
+        if: steps.check-branch.outputs.exists == 'true' && steps.check-pr.outputs.exists == 'false'
+        id: create-pr-existing
+        run: |
+          echo "Creating pull request for existing branch..."
+          gh pr create \
+            --head "${{ steps.branch.outputs.name }}" \
             --title "WIP: ${{ github.event.issue.title }} (#${{ github.event.issue.number }})" \
             --body "## 🎯 Addresses #${{ github.event.issue.number }}
 
@@ -167,15 +211,34 @@ jobs:
 
             The PR will be linked to this issue and will auto-close it when merged.
 
-      - name: Comment on Issue (Already Exists)
-        if: steps.check-branch.outputs.exists == 'true' || steps.check-pr.outputs.exists == 'true'
+      - name: Comment on Issue (PR Created for Existing Branch)
+        if: steps.check-branch.outputs.exists == 'true' && steps.check-pr.outputs.exists == 'false'
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.issue.number }}
           body: |
-            ℹ️ **Branch and/or PR already exists for this issue**
+            🔗 **Pull Request created for existing branch!**
 
-            - Branch `${{ steps.branch.outputs.name }}` or related PR already exists
+            - **Branch**: `${{ steps.branch.outputs.name }}` (already existed)
+            - **Pull Request**: Created as draft PR
+
+            You can continue working on this issue by:
+            ```bash
+            git fetch origin
+            git checkout ${{ steps.branch.outputs.name }}
+            ```
+
+            The PR will be linked to this issue and will auto-close it when merged.
+
+      - name: Comment on Issue (Already Exists)
+        if: steps.check-pr.outputs.exists == 'true'
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            ℹ️ **PR already exists for this issue**
+
+            - Pull Request already exists for this issue
             - No new branch/PR created to avoid duplicates
 
             Check existing PRs: [View PRs for this issue](https://github.com/${{ github.repository }}/pulls?q=is%3Aopen+%23${{ github.event.issue.number }})
