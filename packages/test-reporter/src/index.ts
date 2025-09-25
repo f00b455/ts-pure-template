@@ -224,3 +224,8 @@ export function parseReportPath(path: string): { branch: string; runId: string }
 export function buildReportPath(branch: string, runId: string, basePath = 'reports'): string {
   return `${basePath}/${branch}/${runId}/index.html`;
 }
+
+// Export modules
+export * from './markdown-formatter';
+export * from './report-collector';
+export * from './wiki-publisher';
