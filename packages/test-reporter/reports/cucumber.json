@@ -14,7 +14,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 398125
+              "duration": 385749
             }
           },
           {
@@ -23,11 +23,11 @@
             "line": 10,
             "name": "das Repository hat die GitHub Wiki aktiviert",
             "match": {
-              "location": "features/step_definitions/wiki-testreports.steps.ts:44"
+              "location": "features/step_definitions/wiki-testreports.steps.ts:73"
             },
             "result": {
               "status": "passed",
-              "duration": 2412750
+              "duration": 2227875
             }
           },
           {
@@ -36,11 +36,11 @@
             "line": 11,
             "name": "die Pipeline erzeugt Testberichte als Artefakte",
             "match": {
-              "location": "features/step_definitions/wiki-testreports.steps.ts:49"
+              "location": "features/step_definitions/wiki-testreports.steps.ts:82"
             },
             "result": {
               "status": "passed",
-              "duration": 469707
+              "duration": 469708
             }
           },
           {
@@ -49,11 +49,11 @@
             "line": 15,
             "name": "ein erfolgreicher Pipeline-Lauf auf Branch \"main\" mit Commit-SHA \"abc123\"",
             "match": {
-              "location": "features/step_definitions/wiki-testreports.steps.ts:55"
+              "location": "features/step_definitions/wiki-testreports.steps.ts:95"
             },
             "result": {
               "status": "passed",
-              "duration": 1788375
+              "duration": 1759583
             }
           },
           {
@@ -62,11 +62,11 @@
             "line": 16,
             "name": "die Publish-Stage ausgeführt wird",
             "match": {
-              "location": "features/step_definitions/wiki-testreports.steps.ts:63"
+              "location": "features/step_definitions/wiki-testreports.steps.ts:110"
             },
             "result": {
               "status": "passed",
-              "duration": 285624
+              "duration": 288875
             }
           },
           {
@@ -75,11 +75,11 @@
             "line": 17,
             "name": "werden HTML-Reports unter \"wiki/reports/main/<run-id>/\" abgelegt",
             "match": {
-              "location": "features/step_definitions/wiki-testreports.steps.ts:73"
+              "location": "features/step_definitions/wiki-testreports.steps.ts:147"
             },
             "result": {
               "status": "passed",
-              "duration": 705832
+              "duration": 713624
             }
           },
           {
@@ -88,11 +88,11 @@
             "line": 18,
             "name": "die Wiki-Startseite verlinkt \"Letzter Lauf: <run-id> (abc123)\"",
             "match": {
-              "location": "features/step_definitions/wiki-testreports.steps.ts:81"
+              "location": "features/step_definitions/wiki-testreports.steps.ts:163"
             },
             "result": {
               "status": "passed",
-              "duration": 610917
+              "duration": 607959
             }
           },
           {
@@ -101,11 +101,11 @@
             "line": 19,
             "name": "die Seite ist öffentlich innerhalb des Projekts einsehbar",
             "match": {
-              "location": "features/step_definitions/wiki-testreports.steps.ts:88"
+              "location": "features/step_definitions/wiki-testreports.steps.ts:181"
             },
             "result": {
               "status": "passed",
-              "duration": 487040
+              "duration": 486958
             }
           }
         ],
@@ -137,7 +137,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 143083
+              "duration": 217958
             }
           },
           {
@@ -146,11 +146,11 @@
             "line": 10,
             "name": "das Repository hat die GitHub Wiki aktiviert",
             "match": {
-              "location": "features/step_definitions/wiki-testreports.steps.ts:44"
+              "location": "features/step_definitions/wiki-testreports.steps.ts:73"
             },
             "result": {
               "status": "passed",
-              "duration": 125124
+              "duration": 124249
             }
           },
           {
@@ -159,11 +159,11 @@
             "line": 11,
             "name": "die Pipeline erzeugt Testberichte als Artefakte",
             "match": {
-              "location": "features/step_definitions/wiki-testreports.steps.ts:49"
+              "location": "features/step_definitions/wiki-testreports.steps.ts:82"
             },
             "result": {
               "status": "passed",
-              "duration": 151124
+              "duration": 187583
             }
           },
           {
@@ -172,11 +172,11 @@
             "line": 23,
             "name": "ein Lauf auf Branch \"feature-x\"",
             "match": {
-              "location": "features/step_definitions/wiki-testreports.steps.ts:93"
+              "location": "features/step_definitions/wiki-testreports.steps.ts:199"
             },
             "result": {
               "status": "passed",
-              "duration": 523333
+              "duration": 597499
             }
           },
           {
@@ -185,11 +185,11 @@
             "line": 24,
             "name": "die Publish-Stage ausgeführt wird",
             "match": {
-              "location": "features/step_definitions/wiki-testreports.steps.ts:63"
+              "location": "features/step_definitions/wiki-testreports.steps.ts:110"
             },
             "result": {
               "status": "passed",
-              "duration": 24499
+              "duration": 26249
             }
           },
           {
@@ -198,11 +198,11 @@
             "line": 25,
             "name": "werden Reports unter \"wiki/reports/feature-x/<run-id>/\" gespeichert",
             "match": {
-              "location": "features/step_definitions/wiki-testreports.steps.ts:100"
+              "location": "features/step_definitions/wiki-testreports.steps.ts:213"
             },
             "result": {
               "status": "passed",
-              "duration": 560541
+              "duration": 551666
             }
           },
           {
@@ -211,11 +211,11 @@
             "line": 26,
             "name": "ein Branch-Index existiert und ist verlinkt",
             "match": {
-              "location": "features/step_definitions/wiki-testreports.steps.ts:105"
+              "location": "features/step_definitions/wiki-testreports.steps.ts:229"
             },
             "result": {
               "status": "passed",
-              "duration": 269750
+              "duration": 249917
             }
           }
         ],
@@ -247,7 +247,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 25582
+              "duration": 18833
             }
           },
           {
@@ -256,11 +256,11 @@
             "line": 10,
             "name": "das Repository hat die GitHub Wiki aktiviert",
             "match": {
-              "location": "features/step_definitions/wiki-testreports.steps.ts:44"
+              "location": "features/step_definitions/wiki-testreports.steps.ts:73"
             },
             "result": {
               "status": "passed",
-              "duration": 22749
+              "duration": 13499
             }
           },
           {
@@ -269,11 +269,11 @@
             "line": 11,
             "name": "die Pipeline erzeugt Testberichte als Artefakte",
             "match": {
-              "location": "features/step_definitions/wiki-testreports.steps.ts:49"
+              "location": "features/step_definitions/wiki-testreports.steps.ts:82"
             },
             "result": {
               "status": "passed",
-              "duration": 17708
+              "duration": 11624
             }
           },
           {
@@ -282,11 +282,11 @@
             "line": 30,
             "name": "ein neuer Report wurde abgelegt",
             "match": {
-              "location": "features/step_definitions/wiki-testreports.steps.ts:110"
+              "location": "features/step_definitions/wiki-testreports.steps.ts:248"
             },
             "result": {
               "status": "passed",
-              "duration": 220541
+              "duration": 206583
             }
           },
           {
@@ -295,11 +295,11 @@
             "line": 31,
             "name": "das Index-Skript läuft",
             "match": {
-              "location": "features/step_definitions/wiki-testreports.steps.ts:115"
+              "location": "features/step_definitions/wiki-testreports.steps.ts:269"
             },
             "result": {
               "status": "passed",
-              "duration": 157832
+              "duration": 183042
             }
           },
           {
@@ -308,11 +308,11 @@
             "line": 32,
             "name": "werden die letzten N Läufe pro Branch gelistet, absteigend sortiert nach Zeit",
             "match": {
-              "location": "features/step_definitions/wiki-testreports.steps.ts:120"
+              "location": "features/step_definitions/wiki-testreports.steps.ts:301"
             },
             "result": {
               "status": "passed",
-              "duration": 347749
+              "duration": 401499
             }
           }
         ],
@@ -344,7 +344,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 16417
+              "duration": 14457
             }
           },
           {
@@ -353,11 +353,11 @@
             "line": 10,
             "name": "das Repository hat die GitHub Wiki aktiviert",
             "match": {
-              "location": "features/step_definitions/wiki-testreports.steps.ts:44"
+              "location": "features/step_definitions/wiki-testreports.steps.ts:73"
             },
             "result": {
               "status": "passed",
-              "duration": 15749
+              "duration": 15166
             }
           },
           {
@@ -366,11 +366,11 @@
             "line": 11,
             "name": "die Pipeline erzeugt Testberichte als Artefakte",
             "match": {
-              "location": "features/step_definitions/wiki-testreports.steps.ts:49"
+              "location": "features/step_definitions/wiki-testreports.steps.ts:82"
             },
             "result": {
               "status": "passed",
-              "duration": 21459
+              "duration": 10917
             }
           },
           {
@@ -379,11 +379,11 @@
             "line": 36,
             "name": "die Tests erzeugen keine Artefakte oder sind fehlgeschlagen",
             "match": {
-              "location": "features/step_definitions/wiki-testreports.steps.ts:125"
+              "location": "features/step_definitions/wiki-testreports.steps.ts:340"
             },
             "result": {
               "status": "passed",
-              "duration": 319541
+              "duration": 300624
             }
           },
           {
@@ -392,11 +392,11 @@
             "line": 37,
             "name": "die Publish-Stage ausgeführt wird",
             "match": {
-              "location": "features/step_definitions/wiki-testreports.steps.ts:63"
+              "location": "features/step_definitions/wiki-testreports.steps.ts:110"
             },
             "result": {
               "status": "passed",
-              "duration": 13124
+              "duration": 14624
             }
           },
           {
@@ -405,11 +405,11 @@
             "line": 38,
             "name": "wird ein Eintrag \"Keine Reports verfügbar\" mit Zeitstempel erzeugt",
             "match": {
-              "location": "features/step_definitions/wiki-testreports.steps.ts:131"
+              "location": "features/step_definitions/wiki-testreports.steps.ts:347"
             },
             "result": {
               "status": "passed",
-              "duration": 554042
+              "duration": 493457
             }
           },
           {
@@ -418,11 +418,11 @@
             "line": 39,
             "name": "die Pipeline schlägt nicht allein wegen des Wiki-Schritts fehl",
             "match": {
-              "location": "features/step_definitions/wiki-testreports.steps.ts:135"
+              "location": "features/step_definitions/wiki-testreports.steps.ts:367"
             },
             "result": {
               "status": "passed",
-              "duration": 295665
+              "duration": 667500
             }
           }
         ],
@@ -454,7 +454,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 20333
+              "duration": 16582
             }
           },
           {
@@ -463,11 +463,11 @@
             "line": 10,
             "name": "das Repository hat die GitHub Wiki aktiviert",
             "match": {
-              "location": "features/step_definitions/wiki-testreports.steps.ts:44"
+              "location": "features/step_definitions/wiki-testreports.steps.ts:73"
             },
             "result": {
               "status": "passed",
-              "duration": 20333
+              "duration": 13249
             }
           },
           {
@@ -476,11 +476,11 @@
             "line": 11,
             "name": "die Pipeline erzeugt Testberichte als Artefakte",
             "match": {
-              "location": "features/step_definitions/wiki-testreports.steps.ts:49"
+              "location": "features/step_definitions/wiki-testreports.steps.ts:82"
             },
             "result": {
               "status": "passed",
-              "duration": 14583
+              "duration": 11167
             }
           },
           {
@@ -489,11 +489,11 @@
             "line": 43,
             "name": "mehr als 20 Läufe existieren",
             "match": {
-              "location": "features/step_definitions/wiki-testreports.steps.ts:140"
+              "location": "features/step_definitions/wiki-testreports.steps.ts:395"
             },
             "result": {
               "status": "passed",
-              "duration": 347959
+              "duration": 403666
             }
           },
           {
@@ -502,11 +502,11 @@
             "line": 44,
             "name": "die Publish-Stage läuft",
             "match": {
-              "location": "features/step_definitions/wiki-testreports.steps.ts:144"
+              "location": "features/step_definitions/wiki-testreports.steps.ts:421"
             },
             "result": {
               "status": "passed",
-              "duration": 315708
+              "duration": 384292
             }
           },
           {
@@ -515,11 +515,11 @@
             "line": 45,
             "name": "werden ältere Verzeichnisse entfernt, sodass die Wiki-Größe kontrolliert bleibt",
             "match": {
-              "location": "features/step_definitions/wiki-testreports.steps.ts:149"
+              "location": "features/step_definitions/wiki-testreports.steps.ts:457"
             },
             "result": {
               "status": "passed",
-              "duration": 218999
+              "duration": 333499
             }
           }
         ],
